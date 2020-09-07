@@ -1,2 +1,2 @@
-cd Cilent 
-yarn dev
+#cd Cilent 
+#yarn dev

@@ -1,0 +1,40 @@
+@import "~antd/dist/antd.css";
+.MuiSelect-filled.MuiSelect-filled {
+  padding-right: 200px;
+}
+.style {
+  padding-left: 50px;
+}
+.ant-input {
+  width: 80%;
+}
+.MuiOutlinedInput-input {
+  padding: 14px 4px;
+}
+.ant-form-item-label > label {
+  font-weight: bold;
+}
+.ant-select-single .ant-select-selector .ant-select-selection-item {
+  font-weight: 400;
+}
+/* .root > section > section > section > main > div:nth-child(2){
+    padding:30px;
+} */
+#border {
+  padding: 30px;
+}
+#root > section > section > aside > div{
+    background-color: #051923;
+  }
+#root > section > section > aside > div > ul{
+    background-color: #051923;
+}
+#root > section > section > aside > div > ul > li.ant-menu-item.ant-menu-item-active.ant-menu-item-selected{
+    background-color: #9ECB35
+}
+.ant-menu-dark.ant-menu-dark:not(.ant-menu-horizontal) .ant-menu-item-selected {
+    background-color: #9ECB35;
+}
+/* #root > section > section > section > main > div.ant-row.ant-row-center > div > div > div > form > div:nth-child(1) > div.ant-col.ant-col-4 > button:nth-child(1){
+    background-color:#009900;
+}  */

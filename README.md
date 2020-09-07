@@ -1,2 +1,2 @@
-#cd Cilent 
-#yarn dev
+on cmd first run this command cd Cilent then
+yarn dev

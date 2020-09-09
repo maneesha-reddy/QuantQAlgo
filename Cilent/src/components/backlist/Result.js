@@ -120,7 +120,7 @@ class Result extends Component {
     ];
 
     return this.props.props == false ? (
-      <Table columns={columns} dataSource={data} />
+      <Table columns={columns} dataSource={data} pagination={false} scroll={{y:500}} />
     ) : (
       <Spin tip="Loading..."></Spin>
     );

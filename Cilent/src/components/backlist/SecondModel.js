@@ -66,7 +66,7 @@ class ClassSecondModel extends Component {
                   style={{ fontWeight: "bolder" }}
                   name="name"
                   label="Name"
-                  rules={[{ required: true, message: "pls help me" }]}
+                  // rules={[{ required: true, message: "pls help me" }]}
                 >
                   <Input
                     disabled={this.props.operation === "edit" ? true : false}

@@ -30,6 +30,7 @@ class Backlist extends Component {
       activeName: null,
       spinner: true,
       table: false,
+      resultTable: false,
     };
     this.handleModalValues = this.handleModalValues.bind(this);
     this.setModal2Visible = this.setModal2Visible.bind(this);
@@ -39,6 +40,25 @@ class Backlist extends Component {
   setModal2Visible(isVisible, op) {
     this.setState({ modal2Visible: isVisible, operation: op });
   }
+  showModal = () => {
+    this.setState({
+      resultTable: true,
+    });
+  };
+
+  handleOk = (e) => {
+    console.log(e);
+    this.setState({
+      resultTable: false,
+    });
+  };
+
+  handleCancel = (e) => {
+    console.log(e);
+    this.setState({
+      resultTable: false,
+    });
+  };
 
   handleDateChange = (event) => {
     console.log("hi");
@@ -47,34 +67,58 @@ class Backlist extends Component {
   };
   handleModalValues(values) {
     console.log(values);
-    this.setState(
-      (prevState) => {
-        return {
-          ...prevState,
-          stocks: {
-            ...prevState.stocks,
-            [values.name]: {
-              name: values.name,
-              exchange: values.exchange,
-              symbols: values.symbols,
-              StrikePrice: values.StrikePrice,
-              segment: values.segment,
-              // Strategy: values.Strategy,
+    if (values.name != undefined) {
+      this.setState(
+        (prevState) => {
+          return {
+            ...prevState,
+
+            stocks: {
+              ...prevState.stocks,
+              [values.name]: {
+                name: values.name,
+                exchange: values.exchange,
+                symbols: values.symbols,
+                StrikePrice: values.StrikePrice,
+                segment: values.segment,
+              },
             },
-          },
-        };
-      },
-      function () {
-        console.log(this.state.stocks);
-      }
-    );
+          };
+        },
+        function () {
+          console.log(this.state.stocks);
+        }
+      );
+    } else {
+      this.setState(
+        (prevState) => {
+          return {
+            ...prevState,
+
+            stocks: {
+              ...prevState.stocks,
+              [values.symbols]: {
+                name: values.name,
+                exchange: values.exchange,
+                symbols: values.symbols,
+                StrikePrice: values.StrikePrice,
+                segment: values.segment,
+              },
+            },
+          };
+        },
+        function () {
+          console.log(this.state.stocks);
+        }
+      );
+    }
   }
   handleName = (e) => {
     console.log(e);
     this.setState({ activeName: e });
   };
-  onFinish = async (values) => {
-    console.log("hiiiiiiii");
+  onFinish = (values) => {
+    // console.log("hiiiiiiii");
     this.setState({ table: true });
     console.log(values);
     console.log(this.state.stocks[this.state.activeName]);
@@ -83,19 +127,16 @@ class Backlist extends Component {
     data.append("symbol", this.state.stocks[this.state.activeName]["symbols"]);
     data.append("from_date", values.FromDate);
     data.append("to_date", values.ToDate);
+    data.append("Quantity", values.Quantity);
+    data.append("Initial_Capital", values.Initial_Capital);
+    // data.append("Time_frame", values.Time_frame);
     for (var key of data.entries()) {
       console.log(key[0] + ", " + key[1]);
     }
     let url = "http://127.0.0.1:8000/create/";
-    await axios.post(url, data, {
-      // receive two parameter endpoint url ,form data
-    });
-    // .then((res) => {
-    //   // then print response status
-    //   console.warn(this.state);
-    // });
-    axios.get("http://127.0.0.1:8000/create/").then((res) => {
+    axios.post(url, data, {}).then((res) => {
       console.warn(res.data);
+      // console.warn(res.data);
       this.setState({ spinner: false });
       this.setState((prevState) => {
         return {
@@ -143,68 +184,78 @@ class Backlist extends Component {
           <Card
             hoverable
             // title="BackTesting"
-            style={{ width: 500 }}
+            style={{ width: 700 }}
           >
-            <Form {...layout} onFinish={this.onFinish}>
+            <div>
+              <Button
+                style={{ color: "#9ECB35", float: "right" }}
+                icon={<PlusOutlined style={{ color: "white" }} />}
+                size="medium"
+                shape="round"
+                type="primary"
+                // style={{ marginLeft: 20 }}
+                onClick={() => this.setModal2Visible(true, "add")}
+              ></Button>
+              <Button
+                style={{ color: "#9ECB35", float: "right" }}
+                icon={<EditOutlined />}
+                size="medium"
+                shape="round"
+                disabled={
+                  Object.keys(this.state.stocks).length >= 1 &&
+                  this.state.activeName != null
+                    ? false
+                    : true
+                }
+                type="primary"
+                onClick={() => {
+                  this.setModal2Visible(true, "edit");
+                }}
+              ></Button>
+            </div>
+            <br />
+            <br />
+            <Form
+              {...layout}
+              onFinish={this.onFinish}
+              style={{ justifyContent: "left" }}
+            >
               {/* <Col span={12}> */}
-              <Row>
-                <Col span={20}>
-                  <Form.Item
-                    name="name"
-                    rules={[{ required: true }]}
-                    label="Name"
-                  >
-                    {/* <Row gutter={8}>
+              {/* <Row>
+                <Col span={20}> */}
+              <Form.Item name="name" rules={[{ required: true }]} label="Name">
+                {/* <Row gutter={8}>
                   <Col span={15}> */}
 
-                    <Select
-                      showSearch
-                      bordered={false}
-                      style={{ width: 200 }}
-                      placeholder="Name"
-                      optionFilterProp="children"
-                      onChange={this.handleName}
-                      filterOption={(input, option) =>
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      }
-                    >
-                      {Object.entries(this.state.stocks).map(([key, item]) => {
-                        console.log(item.name, "eorkgj");
-                        return (
-                          <Option key={item.name} value={item.name}>
-                            {item.name}
-                          </Option>
-                        );
-                      })}
-                    </Select>
-                  </Form.Item>
-                </Col>
+                <Select
+                  showSearch
+                  // bordered={false}
+                  style={{ width: 300 }}
+                  placeholder="Name"
+                  optionFilterProp="children"
+                  onChange={this.handleName}
+                  filterOption={(input, option) =>
+                    option.children
+                      .toLowerCase()
+                      .indexOf(input.toLowerCase()) >= 0
+                  }
+                >
+                  {Object.entries(this.state.stocks).map(([key, item]) => {
+                    // console.log(item.name, "eorkgj");
+                    return (
+                      <Option key={key} value={key}>
+                        {key}
+                      </Option>
+                    );
+                  })}
+                </Select>
+              </Form.Item>
+              {/* </Col> */}
 
-                <Col span={4}>
-                  <Button
-                    style={{ color: "#9ECB35" }}
-                    icon={<PlusOutlined style={{ color: "white" }} />}
-                    type="primary"
-                    // style={{ marginLeft: 20 }}
-                    onClick={() => this.setModal2Visible(true, "add")}
-                  ></Button>
-                  <Button
-                    icon={<EditOutlined />}
-                    disabled={
-                      Object.keys(this.state.stocks).length >= 1 &&
-                      this.state.activeName != null
-                        ? false
-                        : true
-                    }
-                    type="primary"
-                    onClick={() => {
-                      this.setModal2Visible(true, "edit");
-                    }}
-                  ></Button>
-                </Col>
-              </Row>
+              {/* <Col span={4}> */}
+
+              {/* </Col>
+              </Row> */}
 
               <SecondModel
                 autofill={
@@ -226,7 +277,7 @@ class Backlist extends Component {
               >
                 <Select
                   showSearch
-                  style={{ width: 200 }}
+                  style={{ width: 300 }}
                   placeholder="Strategy"
                   optionFilterProp="children"
                   filterOption={(input, option) =>
@@ -247,22 +298,26 @@ class Backlist extends Component {
                 label="Quantity"
               >
                 <TextField
+                  style={{ width: 300 }}
                   id="outlined-basic"
                   label="Enter Quantity"
                   variant="outlined"
+                  size="small"
                 />
               </Form.Item>
               {/* </Col> */}
               {/* <Col span={12}> */}
               <Form.Item
-                name="Initial Capital"
+                name="Initial_Capital"
                 rules={[{ required: true }]}
                 label="Initial Capital"
               >
                 <TextField
+                  style={{ width: 300 }}
                   id="outlined-basic"
                   label="Initial Capital"
                   variant="outlined"
+                  size="small"
                 />
               </Form.Item>
               <Form.Item
@@ -273,7 +328,7 @@ class Backlist extends Component {
               >
                 <Select
                   showSearch
-                  style={{ width: 200 }}
+                  style={{ width: 300 }}
                   placeholder="Time_frame"
                   optionFilterProp="children"
                   filterOption={(input, option) =>
@@ -303,6 +358,7 @@ class Backlist extends Component {
                 label="From"
               >
                 <TextField
+                  style={{ width: 300 }}
                   id="datetime-local"
                   type="datetime-local"
                   defaultValue=""
@@ -313,6 +369,7 @@ class Backlist extends Component {
               </Form.Item>
               <Form.Item name="ToDate" rules={[{ required: true }]} label="To">
                 <TextField
+                  style={{ width: 300 }}
                   id="datetime-local-2"
                   type="datetime-local"
                   defaultValue=""
@@ -322,24 +379,37 @@ class Backlist extends Component {
                 />
               </Form.Item>
               <Form.Item {...tailLayout}>
-                <Button type="primary" htmlType="submit" ghost="true">
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  ghost="true"
+                  onClick={this.showModal}
+                >
                   BackTest
                 </Button>
+                {/* <Button type="primary" onClick={this.showModal}>
+                  Open Modal
+                </Button> */}
+                <Modal
+                  title="Basic Modal"
+                  visible={this.state.resultTable}
+                  onOk={this.handleOk}
+                  onCancel={this.handleCancel}
+                >
+                  {this.state.table == true && (
+                    <Result
+                      results={this.state.results["hello"]}
+                      props={this.state.spinner}
+                    />
+                  )}
+                </Modal>
               </Form.Item>
               {/* </Col> */}
             </Form>
           </Card>
-
-          {this.state.table == true && (
-            <Result
-              results={this.state.results["hello"]}
-              props={this.state.spinner}
-            />
-          )}
         </Col>
-        <br />
-        <br />
       </Row>
+      // </div>
     );
   }
 }

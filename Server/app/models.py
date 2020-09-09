@@ -5,6 +5,9 @@ from django.utils import timezone
 
 class BackTest(models.Model):
     symbol = models.CharField(max_length=200)
+    Quantity = models.IntegerField()
+    Initial_Capital = models.IntegerField()
+    Time_frame = models.CharField(max_length=200)
     from_date = models.DateTimeField(blank=True, null=True)
     to_date = models.DateTimeField(blank=True, null=True)
 

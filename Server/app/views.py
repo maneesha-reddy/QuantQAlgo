@@ -371,7 +371,7 @@ class ImageCreateView(CreateAPIView):
         # self.df2_nifty_CE = pd.read_csv(
         #     "C:/Users/Dell/Desktop/quant-app/Server/app//acc_15min.csv")
         self.df1 = pd.read_csv(
-            "quant-app/Server/app//SBIN_15_min.csv")
+            "app//SBIN_15_min.csv")
         self.lot_size = 0
         self.request = ""
 

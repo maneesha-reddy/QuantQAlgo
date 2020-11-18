@@ -1,0 +1,11 @@
+.site-statistic-demo-card {
+    background:#e5e5e5;
+    padding: 20px;
+  }
+.ant-statistic-title {
+    color:black
+}
+#body > div:nth-child(12) > div > div.ant-modal-wrap > div > div.ant-modal-content > div.ant-modal-body > div > div > div:nth-child(2) > div:nth-child(1) > div > div.ant-statistic-title
+{
+    color:black
+}

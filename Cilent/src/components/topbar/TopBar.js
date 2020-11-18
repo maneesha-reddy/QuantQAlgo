@@ -37,7 +37,7 @@ function TopBar() {
           className="site-badge-count-109"
           count={1}
           style={{
-            backgroundColor: "#52c41a",
+            backgroundColor: "#f50",
           }}
         >
           <BellFilled

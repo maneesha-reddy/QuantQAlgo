@@ -25,6 +25,7 @@ SECRET_KEY = '1p+pn5m3_yp)%g_&=r*@jwn4ue*70t3mj5qo8e+5mynslt&%yw'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+# DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
 ALLOWED_HOSTS = []
 
@@ -84,7 +85,28 @@ DATABASES = {
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-
+# DATABASE = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         "CLIENT": {
+#             "name": "quantwebsite",
+#             "host": "mongodb+srv://maneeshareddy1:quant123@quant.eni7z.mongodb.net/quantwebsite?retryWrites=true&w=majority",
+#             "username": "maneeshareddy1",
+#             "password": "quant123",
+#             "authMechanism": "SCRAM-SHA-1",
+#         },
+#     }
+# }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'djongo',
+#         'NAME': 'quantwebsite',
+#         'HOST': 'mongodb+srv://maneeshareddy1:quant123@quant.eni7z.mongodb.net/quantwebsite?retryWrites=true&w=majority',
+#         'USER': 'maneeshareddy1',
+#         'PASSWORD': 'quant123',
+#         "authMechanism": "SCRAM-SHA-1"
+#     }
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators
@@ -128,7 +150,10 @@ REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
-       'rest_framework.permissions.AllowAny'
+        'rest_framework.permissions.AllowAny'
     ]
 }
-CORS_ORIGIN_ALLOW_ALL= True
+CORS_ORIGIN_ALLOW_ALL = True
+# CORS_ORIGIN_WHITELIST = [
+#     'http://localhost:3000',
+# ]

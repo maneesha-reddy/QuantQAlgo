@@ -15,7 +15,6 @@ import axios from "axios";
 import { Input, Form } from "antd";
 import { Card } from "antd";
 // import TextField from "@material-ui/core/TextField";
-
 const { Option } = Select;
 class Backlist extends Component {
   constructor(props) {
@@ -31,8 +30,10 @@ class Backlist extends Component {
       spinner: true,
       table: false,
       resultTable: false,
+      width:1000,
     };
     this.handleModalValues = this.handleModalValues.bind(this);
+    this.handleWidth = this.handleWidth.bind(this);
     this.setModal2Visible = this.setModal2Visible.bind(this);
     // this.onFinish = this.onFinish(this);
   }
@@ -40,6 +41,9 @@ class Backlist extends Component {
   setModal2Visible(isVisible, op) {
     this.setState({ modal2Visible: isVisible, operation: op });
   }
+  handleWidth = () => {
+    this.setState({ width: 1000 });
+  };
   showModal = () => {
     this.setState({
       resultTable: true,
@@ -117,6 +121,7 @@ class Backlist extends Component {
     console.log(e);
     this.setState({ activeName: e });
   };
+
   onFinish = (values) => {
     // console.log("hiiiiiiii");
     this.setState({ table: true });
@@ -144,18 +149,32 @@ class Backlist extends Component {
           results: {
             ...prevState.results,
             hello: {
-              Trade_start_date: res.data["Trade start date"],
-              Trade_end_date: res.data["Trade end date"],
-              Initial_Capital: res.data["Initial_Capital"],
-              Ending_Capital: res.data["Ending_Capital"],
-              Total_no_trades: res.data["Total no trades"],
-              Positive_trades: res.data["Positive_trades"],
-              Negative_trades: res.data["Negative_trades"],
-              Total_loss: res.data["Total_loss"],
-              Net_Profit: res.data["Net Profit"],
-              Sharpe_ratio: res.data["Sharpe ratio"],
-              CAGR: res.data["CAGR (%)"],
-              Maximum_Drawdown: res.data["Maximum Drawdown (%)"],
+              Trade_start_date: res.data["output"]["Trade start date"],
+              Trade_end_date: res.data["output"]["Trade end date"],
+              Initial_Capital: res.data["output"]["Initial_Capital"],
+              Ending_Capital: res.data["output"]["Ending_Capital"],
+              Total_no_trades: res.data["output"]["Total no trades"],
+              Positive_trades: res.data["output"]["Positive_trades"],
+              Negative_trades: res.data["output"]["Negative_trades"],
+              Total_loss: res.data["output"]["Total_loss"],
+              Net_Profit: res.data["output"]["Net Profit"],
+              Sharpe_ratio: res.data["output"]["Sharpe ratio"],
+              CAGR: res.data["output"]["CAGR (%)"],
+              Maximum_Drawdown: res.data["output"]["Maximum Drawdown (%)"],
+              Entry:res.data["trade"]["Entry"],
+              Date:res.data["trade"]["Date"],
+              Price:res.data["trade"]["Price"],
+              Exit:res.data["trade"]["Exit"],
+              ExDate:res.data["trade"]["ExDate"],
+              ExPrice:res.data["trade"]["ExPrice"],
+              change:res.data["trade"]["% Change"],
+              Profit:res.data["trade"]["Profit"],
+              perprofit:res.data["trade"]["% Profit"],
+              position_value:res.data["trade"]["Position value"],
+              cumm_profit:res.data["trade"]["Cumm Profit"],
+              MAE:res.data["trade"]["MAE"],
+              MFE:res.data["trade"]["MFE"],
+              SS:res.data["trade"]["Scale In / Scale Out"]
             },
           },
         };
@@ -178,7 +197,7 @@ class Backlist extends Component {
     };
     const { size } = this.state.size;
     return (
-      // <div id="border" style={{ backgroundColor: "white", paddingLeft: 100 }}>
+      // <div id="border" style={{ backgroundColor: "white", paddingLeft: 100 }} backgroundColor:"#EDFBED">
       <Row justify={"center"}>
         <Col>
           <Card
@@ -392,6 +411,7 @@ class Backlist extends Component {
                 </Button> */}
                 <Modal
                   title="Basic Modal"
+                  width={this.state.width}
                   visible={this.state.resultTable}
                   onOk={this.handleOk}
                   onCancel={this.handleCancel}
@@ -400,16 +420,15 @@ class Backlist extends Component {
                     <Result
                       results={this.state.results["hello"]}
                       props={this.state.spinner}
+                      handleWidth={this.handleWidth}
                     />
                   )}
                 </Modal>
               </Form.Item>
-              {/* </Col> */}
             </Form>
           </Card>
         </Col>
       </Row>
-      // </div>
     );
   }
 }

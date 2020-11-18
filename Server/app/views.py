@@ -283,9 +283,9 @@ def prevdata(token, acc_key):
     return timestamp, close
 
 
-with open('D:/QuantAlgo/quant-app/Server/app/tokens.p', 'rb') as fp:
+with open('app/tokens.p', 'rb') as fp:
     dict3 = pickle.load(fp)
-with open('D:/QuantAlgo/quant-app/Server/app/instruments.p', 'rb') as fp:
+with open('app/instruments.p', 'rb') as fp:
     dict1 = pickle.load(fp)
 dict3[137] = 256265
 dict3[138] = 265
@@ -324,7 +324,7 @@ keys = list(dict1)
 close = {}
 s = {}
 today = datetime.utcnow().date()
-print(today)
+# print(today)
 yesterday = today - timedelta(days=1)
 t1 = str(yesterday)+"+"+"14:15:00"
 t2 = str(today)+"+"+"04:30:00"
@@ -342,14 +342,14 @@ for i in range(len(dict3)):
     res2 = requests.get(url2, headers=HEADERS)
     data2 = res2.json()
     data2 = data2["data"]["candles"]
-    print(data2)
+    # print(data2)
     # if i == 137:
     #     # print(data2)
     close[keys[i]] = data2[-1][4]
 
 
 niftitime, niftiltp = prevdata(256265, acc_key)
-print(niftiltp)
+# print(niftiltp)
 sensextime, sensexltp = prevdata(265, acc_key)
 banktime, bankltp = prevdata(260105, acc_key)
 indiatime, indialtp = prevdata(264969, acc_key)
@@ -371,7 +371,7 @@ class ImageCreateView(CreateAPIView):
         # self.df2_nifty_CE = pd.read_csv(
         #     "C:/Users/Dell/Desktop/quant-app/Server/app//acc_15min.csv")
         self.df1 = pd.read_csv(
-            "C:/Users/Dell/Downloads/QuantAlgo/quant-app/Server/app//SBIN_15_min.csv")
+            "quant-app/Server/app//SBIN_15_min.csv")
         self.lot_size = 0
         self.request = ""
 

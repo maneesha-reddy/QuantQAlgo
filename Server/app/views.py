@@ -476,9 +476,8 @@ def indicator(tk, ltp, ohlc, ltp_df):
     v34 = ans2['STX_15_1.5'].iloc[-5]
     v35 = ans2['STX_15_1.5'].iloc[-6]
     val = ''
-    if (v3 == "up" and v1 > 55 and (not leflag[loop]) and (not seflag[loop])) or lsigflag[loop] == 1:
+    if (v3 == "up" and v1 > 55 and (v21 == 1 or v22 == 1 or v23 == 1 or v24 == 1 or v25 == 1) and (not leflag[loop]) and (not seflag[loop])) or lsigflag[loop] == 1:
         val = 'In-LE-For-A-While'
-        val = 'LE'
         if((v31 == "down" or v32 == "down" or v33 == "down" or v34 == "down" or v35 == "down") and (v11 <= 55 or v12 <= 55 or v13 <= 55 or v14 <= 55 or v15 <= 55)) or lsigflag[loop] == 1:
             print("check-1", v3, v1, v5,
                   ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
@@ -491,7 +490,7 @@ def indicator(tk, ltp, ohlc, ltp_df):
             elif lsigflag[loop] == 1 and sigmin[loop]+chtime <= int(min2):
                 print("check-2", v3, v1, v5,
                       ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
-                if (v3 == "up" and v1 > 55 and (not leflag[loop]) and (not seflag[loop])):
+                if (v3 == "up" and v1 > 55 and (v21 == 1 or v22 == 1 or v23 == 1 or v24 == 1 or v25 == 1) and (not leflag[loop]) and (not seflag[loop])):
                     val = "LE"
                     leflag[loop] = True
                     lxflag[loop] = False
@@ -509,11 +508,10 @@ def indicator(tk, ltp, ohlc, ltp_df):
 
     elif v3 == "down" and (not lxflag[loop]):
         val = "LX"
-        # leflag[loop] = False
-        # lxflag[loop] = True
-    elif (v3 == "down" and v1 < 45 and (not leflag[loop]) and (not seflag[loop])) or ssigflag[loop] == 1:
+        leflag[loop] = False
+        lxflag[loop] = True
+    elif (v3 == "down" and v1 < 45 and (v61 == 1 or v62 == 1 or v63 == 1 or v64 == 1 or v65 == 1) and (not leflag[loop]) and (not seflag[loop])) or ssigflag[loop] == 1:
         val = 'In-SE-For-A-While'
-        val = 'SE'
         if ((v31 == "up" or v32 == "up" or v33 == "up" or v34 == "up" or v35 == "up") and (v11 >= 45 or v12 >= 45 or v13 >= 45 or v14 >= 45 or v15 >= 45)) or ssigflag[loop] == 1:
             print("check-1", v3, v1, v5,
                   ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
@@ -526,7 +524,7 @@ def indicator(tk, ltp, ohlc, ltp_df):
             if ssigflag[loop] == 1 and sigmin[loop]+chtime <= int(min2):
                 print("check-2", v3, v1, v5,
                       ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
-                if (v3 == "down" and v1 < 45 and (not leflag[loop]) and (not seflag[loop])):
+                if (v3 == "down" and v1 < 45 and (v61 == 1 or v62 == 1 or v63 == 1 or v64 == 1 or v65 == 1) and (not leflag[loop]) and (not seflag[loop])):
                     val = "SE"
                     seflag[loop] = True
                     sxflag[loop] = False
@@ -567,7 +565,7 @@ def indicator(tk, ltp, ohlc, ltp_df):
         res = str(code)+" "+str(val)+" "+"LTP="+str(ltp)+" "+" RSI="+str(v1)+" " + \
             " SUPERTEND="+str(v4)+" "+str(v3)+" "+"MACD= " + \
             v5+" TIMESTAMP="+str(T2)+"\n"
-#             print(res)
+        print(res)
         file1.write(res)
         file1.close()
 #     res=str(code)+" "+str(val)+" "+"LTP="+str(ltp)+" "+" RSI="+str(v1)+" "+" SUPERTEND="+str(v4)+" "+str(v3)+" "+"MACD= "+v5+" TIMESTAMP="+str(T2)+"\n"
@@ -586,7 +584,6 @@ def indicator(tk, ltp, ohlc, ltp_df):
                       " is made 0", sigmin[j], min2)
                 ssigflag[j] = 0
                 sigmin[j] = 0
-    # print("ticker completed")
 
 
 def on_connect(ws, response):
@@ -783,12 +780,12 @@ def background_thread():
         k = list(s)
         # trade_tokens = [0 for i in range(4)]
 
-        sio.emit('paper', papercapital)
+        sio.emit('paper', round(papercapital))
         sio.emit('size', size)
-        sio.emit('tradename', trade_name)
-        sio.emit('pnl', pnl)
-        sio.emit('entryval', entry_val)
-        sio.emit('tradeltp', trade_ltp)
+        sio.emit('tradename',  trade_name)
+        sio.emit('pnl', [round(num) for num in pnl])
+        sio.emit('entryval', [round(num) for num in entry_val])
+        sio.emit('tradeltp', [round(num) for num in trade_ltp])
         sio.emit('tradetoken', trade_tokens)
         # print(s)
         if k != []:
@@ -891,41 +888,41 @@ def prevdata(token, acc_key):
     return timestamp, close1
 
 
-# with open('app/tokens.p', 'rb') as fp:
-#     dict3 = pickle.load(fp)
-# with open('app/instruments.p', 'rb') as fp:
-#     dict1 = pickle.load(fp)
+with open('app/tokens.p', 'rb') as fp:
+    dict3 = pickle.load(fp)
+with open('app/instruments.p', 'rb') as fp:
+    dict1 = pickle.load(fp)
 
 
-# dict3[137] = 256265
-# dict3[138] = 265
-# dict3[139] = 260105
-# dict3[140] = 264969
-# dict1[256265] = '"NIFTI"'
-# dict1[265] = '"SENSEX"'
-# dict1[260105] = '"NIFTI BANK"'
-# dict1[264969] = '"INDIA VIX"'
+dict3[137] = 256265
+dict3[138] = 265
+dict3[139] = 260105
+dict3[140] = 264969
+dict1[256265] = '"NIFTI"'
+dict1[265] = '"SENSEX"'
+dict1[260105] = '"NIFTI BANK"'
+dict1[264969] = '"INDIA VIX"'
 # dict1={57648135:'GOLD-21JAN' ,56744455: 'CRUDEOIL21JAN', 57445383 : 'ZINC21JAN'  }
 # dict2={57648135 : 0 , 56744455:1 , 2:57445383}
 # dict3={0 : 57648135 , 1:56744455, 57445383:2}
-dict3 = {}
-dict1 = {}
-dict3[0] = 256265
-dict3[1] = 265
-dict3[2] = 260105
-dict3[3] = 264969
-dict3[4] = 56407303
-dict3[5] = 56551687
-dict3[6] = 57062151
-dict3[7] = 57059847
-dict1[256265] = '"NIFTY"'
-dict1[265] = '"SENSEX"'
-dict1[260105] = '"NIFTY BANK"'
-dict1[264969] = '"INDIA VIX"'
-dict1[56407303] = '"COTTON"'
-dict1[56551687] = '"CRUDEOIL21JAN"'
-dict1[57062151] = '"ZINC21JAN"'
-dict1[57059847] = '"ALUMINIUM"'
+# dict3 = {}
+# dict1 = {}
+# dict3[0] = 256265
+# dict3[1] = 265
+# dict3[2] = 260105
+# dict3[3] = 264969
+# dict3[4] = 56407303
+# dict3[5] = 56551687
+# dict3[6] = 57062151
+# dict3[7] = 57059847
+# dict1[256265] = '"NIFTY"'
+# dict1[265] = '"SENSEX"'
+# dict1[260105] = '"NIFTY BANK"'
+# dict1[264969] = '"INDIA VIX"'
+# dict1[56407303] = '"COTTON"'
+# dict1[56551687] = '"CRUDEOIL21JAN"'
+# dict1[57062151] = '"ZINC21JAN"'
+# dict1[57059847] = '"ALUMINIUM"'
 
 
 # dict3 = dict(itertools.islice(dict3.items(), 100))
@@ -959,7 +956,7 @@ s = {}
 allltp = {}
 
 ltp_f = [0 for i in range(len(dict3))]
-le_t = [4, 5, 6, 7]
+le_t = []
 se_t = []
 
 keys = list(dict1)
@@ -1004,9 +1001,9 @@ for i in range(len(dict3)):
 data1 = ['' for i in range(len(dict3))]
 data2 = ['' for i in range(len(dict3))]
 data3 = ['' for i in range(len(dict3))]
-leflag = [True for i in range(len(dict3))]
+leflag = [False for i in range(len(dict3))]
 seflag = [False for i in range(len(dict3))]
-lxflag = [False for i in range(len(dict3))]
+lxflag = [True for i in range(len(dict3))]
 sxflag = [True for i in range(len(dict3))]
 signal = ['' for i in range(len(dict3))]
 flag4 = [1 for i in range(len(dict3))]

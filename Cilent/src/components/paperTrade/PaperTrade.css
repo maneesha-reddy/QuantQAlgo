@@ -1,0 +1,16 @@
+@import "~antd/dist/antd.css";
+
+.ant-slider-handle {
+    background-color: #0099ff;
+    border-radius: 20px;
+}
+.ant-slider-track {
+
+    background-color:  #0066ff;
+    height:8px;
+}
+.ant-input-number-input {
+    height:55px;
+    padding: 22px;
+
+}

@@ -5,10 +5,11 @@ import "./App.css";
 import SideBar from "./components/sidebar/sidebar";
 import TopBar from "./components/topbar/TopBar";
 import { Route, Switch } from "react-router-dom";
-import Dashboard from "./components/dashboard/Dashboard";
+import DashBoard from "./components/dashboard/Dashboard";
 import HomeFilled from "@ant-design/icons";
 import Backlist from "./components/backlist/Backlist";
-
+import PaperTrade from "./components/paperTrade/PaperTrade"
+import { Socket } from "socket.io-client";
 const { Header, Content } = Layout;
 class App extends React.Component {
   state = {
@@ -30,13 +31,15 @@ class App extends React.Component {
           {/* style={{backgroundColor: "#cff6cf" } */}
             <Header className="site-layout-background" style={{ padding: 0 }} />
             <Content style={{ margin: "0 16px"}}>
-              <Breadcrumb style={{ margin: "16px 0" }}>
-                <Breadcrumb.Item icon={<HomeFilled />}>Home</Breadcrumb.Item>
+              {/* <Breadcrumb style={{ margin: "16px 0" }}>
+                <Breadcrumb.Item icon={<HomeFilled twoToneColor="#eb2f96"/>}>Home</Breadcrumb.Item>
                 <Breadcrumb.Item>Dashboard</Breadcrumb.Item>
-              </Breadcrumb>
+              </Breadcrumb> */}
               <Switch>
-                <Route path="/dashboard" component={Dashboard}></Route>
-                <Route path="/backlist" component={Backlist}></Route>
+                <Route path="/dashboard" component={DashBoard}></Route>
+                <Route path="/backtest" component={Backlist}></Route>
+                <Route path="/paperTrade" component={PaperTrade}></Route>
+               
               </Switch>
             </Content>
           </Layout>

@@ -8,7 +8,8 @@ class TopTable extends Component {
     }
    
 render() { 
-      
+     
+  // console.log(this.props.data)
 const columns = [
   {
     title: 'StockName',
@@ -22,9 +23,21 @@ const columns = [
   },
   {
     title: this.props.label,
+    dataIndex: 'gain',
+    key: 'gain',
+  },
+  {
+    title: "LTP",
     dataIndex: 'ltp',
     key: 'ltp',
   },
+  {
+    title: "Prev Close",
+    dataIndex: 'PC',
+    key: 'PC',
+  },
+  
+
 
 
   
@@ -35,12 +48,20 @@ const columns = [
 //   this.setState({color:'green'});
 // }
 const data = [];
+if(this.props.data!=undefined)
+{
+// console.log(this.props.data.length);
+
 if(this.props.Name!=undefined)
 {
-  // console.log(this.props.Name[0]);
   let c="blue"
   for (let i = 0; i < 5; i++) {
-    if(this.props.data[i]<0){
+
+    if(this.props.data[i]!=undefined){
+      // console.log(this.props.data[i].length);
+    
+   
+    if(this.props.data[i][0]<0){
       c='red'
     }
     else{
@@ -49,8 +70,12 @@ if(this.props.Name!=undefined)
     data.push({
         key:i,
         name:[this.props.Name[i],c],
-        ltp:this.props.data[i],
+        gain:this.props.data[i][0],
+        ltp:this.props.data[i][1],
+        PC:this.props.data[i][2],
     });
+  }
+}
 }
 }
 

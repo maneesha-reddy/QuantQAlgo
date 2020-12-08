@@ -5,7 +5,9 @@ import Graph from './graph'
 import TopTable from './toptable'
 import { Statistic, Card, Row, Col } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
-
+import { Layout, Menu, Breadcrumb } from "antd";
+import { HomeOutlined} from '@ant-design/icons';
+export const socket=io('http://localhost:8000', {transports: ['websocket']});;
 class DashBoard extends Component {
     constructor(props) {
         super(props);
@@ -29,6 +31,7 @@ class DashBoard extends Component {
     }
     componentDidMount() {
       const socket=io('http://localhost:8000', {transports: ['websocket']});
+      console.log(socket,"socket")
       socket.on('niftidata', this.handleniftiData);
       socket.on('niftitime', this.handleniftiLabel);
       socket.on('nltp',this.handleniftiltp)
@@ -113,7 +116,7 @@ class DashBoard extends Component {
     }
     handlegainersltp=(msg)=>
     {
-      console.log("gainers",msg)
+      // console.log("gainers",msg)
       this.setState({gainersltp:msg});
     }
     handleloosersltp=(msg)=>
@@ -125,11 +128,15 @@ class DashBoard extends Component {
     render() {
       return( 
         <div >
+           <Breadcrumb style={{ margin: "16px 0" }}>
+           <Breadcrumb.Item href=""><HomeOutlined /> <span>Home</span></Breadcrumb.Item>
+                <Breadcrumb.Item>Dashboard</Breadcrumb.Item>
+              </Breadcrumb>
         <Row gutter={16}>
           <Col span={6}>
           {/* <Card style={{ width: "45vh",height:"35vh" }}> */}
         <Statistic
-            title="NIFTI"
+            title="NIFTI 50"
             value={this.state.nltp[0]}
             valueStyle={{ color: '#3f8600' }}
             // prefix={<ArrowUpOutlined />}
@@ -193,7 +200,7 @@ class DashBoard extends Component {
          <Col span={6}>
          {/* <Card style={{ width: "45vh",height:"35vh" }}> */}
         <Statistic
-            title="NIFTI Bank"
+            title="NIFTY Bank"
             value={this.state.bltp[0]}
             valueStyle={{ color: '#3f8600' }}
             // prefix={<ArrowUpOutlined />}
@@ -224,7 +231,7 @@ class DashBoard extends Component {
          <Col span={6}>
          {/* <Card style={{ width: "45vh",height:"35vh" }}> */}
         <Statistic
-            title="INDIA vix"
+            title="INDIA VIX"
             value={this.state.iltp[0]}
             // value={this.state.iltp[1]}
             // precision={2}
@@ -260,11 +267,12 @@ class DashBoard extends Component {
     <TopTable Name={this.state.gainers} data={this.state.gainersltp} label="gain" />
     </Col>
     <Col span={12}>
-    <TopTable Name={this.state.loosers} data={this.state.loosersltp} label="lose"/>
+    <TopTable Name={this.state.loosers} data={this.state.loosersltp} label="loss"/>
     </Col>
 </Row>     
       </div>
       );
     }
 }
+// export {socket};
 export default DashBoard;

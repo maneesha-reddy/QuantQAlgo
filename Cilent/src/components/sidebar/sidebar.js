@@ -46,9 +46,11 @@ class SideBar extends Component {
 
           <SubMenu key="sub1" icon={<RocketFilled />} title="Deployment">
             <Menu.Item key="2">
-            <NavLink to ="/backlist" > BackTest</NavLink>
+            <NavLink to ="/backtest" > BackTest</NavLink>
                  </Menu.Item>
-            <Menu.Item key="3">Paper</Menu.Item>
+            <Menu.Item key="3">
+            <NavLink to ="/paperTrade" >Paper Trade</NavLink>
+              </Menu.Item>
             <Menu.Item key="4">Optimise</Menu.Item>
             <Menu.Item key="5">Live Trade</Menu.Item>
           </SubMenu>

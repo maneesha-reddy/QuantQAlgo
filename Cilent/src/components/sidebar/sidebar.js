@@ -1,7 +1,6 @@
 import React, { Component } from "react";
-import { Layout, Menu} from 'antd';
-import 'antd/dist/antd.css';
-
+import { Layout, Menu } from "antd";
+import "antd/dist/antd.css";
 
 import {
   DesktopOutlined,
@@ -13,8 +12,7 @@ import {
   HomeFilled,
   QuestionCircleFilled,
   RocketFilled,
-
-} from '@ant-design/icons';
+} from "@ant-design/icons";
 import { NavLink } from "react-router-dom";
 const { Sider } = Layout;
 const { SubMenu } = Menu;
@@ -35,22 +33,21 @@ class SideBar extends Component {
           console.log(collapsed, type);
         }}
         style={{
-            marginTop: 64,
-          }}
+          marginTop: 64,
+        }}
       >
         <Menu theme="dark" defaultSelectedKeys={["1"]} mode="inline">
           <Menu.Item key="1" icon={<HomeFilled />}>
-            
-            <NavLink to ="/dashboard" >Dashboard</NavLink>
+            <NavLink to="/dashboard">Dashboard</NavLink>
           </Menu.Item>
 
           <SubMenu key="sub1" icon={<RocketFilled />} title="Deployment">
             <Menu.Item key="2">
-            <NavLink to ="/backtest" > BackTest</NavLink>
-                 </Menu.Item>
+              <NavLink to="/backtest"> BackTest</NavLink>
+            </Menu.Item>
             <Menu.Item key="3">
-            <NavLink to ="/paperTrade" >Paper Trade</NavLink>
-              </Menu.Item>
+              <NavLink to="/paperTrade">Paper Trade</NavLink>
+            </Menu.Item>
             <Menu.Item key="4">Optimise</Menu.Item>
             <Menu.Item key="5">Live Trade</Menu.Item>
           </SubMenu>

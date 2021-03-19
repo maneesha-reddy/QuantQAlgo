@@ -3,12 +3,14 @@ import axios from "axios";
 import io from "socket.io-client";
 import Graph from "./graph";
 import TopTable from "./toptable";
-import { Statistic, Card, Row, Col } from "antd";
+import { Statistic, Card, Row, Col, Divider } from "antd";
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import { Layout, Menu, Breadcrumb } from "antd";
 import { HomeOutlined } from "@ant-design/icons";
-// export const socket=io('http://localhost:8000', {transports: ['websocket']});
-export const socket = io("http://18.220.64.132:8000", {
+// export const socket = io("http://localhost:8000", {
+//   transports: ["websocket"],
+// });
+export const socket = io("https://quantqalgo.ddns.net/", {
   transports: ["websocket"],
 });
 class DashBoard extends Component {
@@ -34,7 +36,10 @@ class DashBoard extends Component {
     };
   }
   componentDidMount() {
-    const socket = io("http://18.220.64.132:8000", {
+    // const socket = io("http://127.0.0.1:8000/", {
+    //   transports: ["websocket"],
+    // });
+    const socket = io("https://quantqalgo.ddns.net/", {
       transports: ["websocket"],
     });
     console.log(socket, "socket");
@@ -134,150 +139,165 @@ class DashBoard extends Component {
         </Breadcrumb>
         <Row gutter={16}>
           <Col span={6}>
-            {/* <Card style={{ width: "45vh",height:"35vh" }}> */}
-            <Statistic
-              title="NIFTI 50"
-              value={this.state.nltp[0]}
-              valueStyle={{ color: "#3f8600" }}
-              // prefix={<ArrowUpOutlined />}
-            />
-            {this.state.nltp[1] > 0 ? (
+            <Card style={{ height: "250px" }} bordered={false} className="Card">
               <Statistic
-                value={this.state.nltp[1]}
-                precision={2}
-                valueStyle={{ color: "#006600" }}
-                suffix="%"
-                prefix={<ArrowUpOutlined />}
+                title="NIFTI 50"
+                value={this.state.nltp[0]}
+                valueStyle={{ color: "#3f8600" }}
+                // prefix={<ArrowUpOutlined />}
               />
-            ) : (
-              <Statistic
-                value={this.state.nltp[1]}
-                precision={2}
-                valueStyle={{ color: "#cf1322" }}
-                suffix="%"
-                prefix={<ArrowDownOutlined />}
-              />
-            )}
+              {this.state.nltp[1] > 0 ? (
+                <Statistic
+                  value={this.state.nltp[1]}
+                  precision={2}
+                  valueStyle={{ color: "#006600" }}
+                  suffix="%"
+                  prefix={<ArrowUpOutlined />}
+                />
+              ) : (
+                <Statistic
+                  value={this.state.nltp[1]}
+                  precision={2}
+                  valueStyle={{ color: "#cf1322" }}
+                  suffix="%"
+                  prefix={<ArrowDownOutlined />}
+                />
+              )}
 
-            <Graph
-              labels={this.state.lablesnifti}
-              data={this.state.datanifti}
-              title="nifti"
-              grad="#3399ff"
-              border="#4d94ff"
-            />
-            {/* </Card> */}
+              <Graph
+                labels={this.state.lablesnifti}
+                data={this.state.datanifti}
+                title="nifti"
+                // grad="#3399ff"
+                // border="#4d94ff"
+                border="#e6e600"
+                grad="#d7af13"
+              />
+            </Card>
           </Col>
           <Col span={6}>
-            {/* <Card style={{ width: "45vh",height:"35vh" }}> */}
-
-            <Statistic
-              title="SENSEX"
-              value={this.state.sltp[0]}
-              valueStyle={{ color: "#3f8600" }}
-              // prefix={<ArrowUpOutlined />}
-              // suffix="%"
-            />
-            {this.state.sltp[1] > 0 ? (
+            <Card
+              // style={{ width: "45vh", height: "35vh" }}
+              bordered={false}
+              className="Card"
+            >
               <Statistic
-                value={this.state.sltp[1]}
-                precision={2}
-                valueStyle={{ color: "#006600" }}
-                suffix="%"
-                prefix={<ArrowUpOutlined />}
+                title="SENSEX"
+                value={this.state.sltp[0]}
+                valueStyle={{ color: "#3f8600" }}
+                // prefix={<ArrowUpOutlined />}
+                // suffix="%"
               />
-            ) : (
-              <Statistic
-                value={this.state.sltp[1]}
-                precision={2}
-                valueStyle={{ color: "#cf1322" }}
-                suffix="%"
-                prefix={<ArrowDownOutlined />}
+              {this.state.sltp[1] > 0 ? (
+                <Statistic
+                  value={this.state.sltp[1]}
+                  precision={2}
+                  valueStyle={{ color: "#006600" }}
+                  suffix="%"
+                  prefix={<ArrowUpOutlined />}
+                />
+              ) : (
+                <Statistic
+                  value={this.state.sltp[1]}
+                  precision={2}
+                  valueStyle={{ color: "#cf1322" }}
+                  suffix="%"
+                  prefix={<ArrowDownOutlined />}
+                />
+              )}
+              <Graph
+                labels={this.state.lablessensex}
+                data={this.state.datasensex}
+                title="sensex"
+                grad="#99e699"
+                // grad="#733bc0"
+                border="#29a329"
               />
-            )}
-            <Graph
-              labels={this.state.lablessensex}
-              data={this.state.datasensex}
-              title="sensex"
-              grad="#99e699"
-              border="#29a329"
-            />
-            {/* </Card> */}
+            </Card>
           </Col>
           <Col span={6}>
-            {/* <Card style={{ width: "45vh",height:"35vh" }}> */}
-            <Statistic
-              title="NIFTY Bank"
-              value={this.state.bltp[0]}
-              valueStyle={{ color: "#3f8600" }}
-              // prefix={<ArrowUpOutlined />}
-              // suffix="%"
-            />
-            {this.state.bltp[1] > 0 ? (
+            <Card
+              //  style={{ width: "45vh", height: "35vh" }}
+              bordered={false}
+              className="Card"
+            >
               <Statistic
-                value={this.state.bltp[1]}
-                precision={2}
-                valueStyle={{ color: "#006600" }}
-                suffix="%"
-                prefix={<ArrowUpOutlined />}
+                title="NIFTY Bank"
+                value={this.state.bltp[0]}
+                valueStyle={{ color: "#3f8600" }}
+                // prefix={<ArrowUpOutlined />}
+                // suffix="%"
               />
-            ) : (
-              <Statistic
-                value={this.state.bltp[1]}
-                precision={2}
-                valueStyle={{ color: "#cf1322" }}
-                suffix="%"
-                prefix={<ArrowDownOutlined />}
+              {this.state.bltp[1] > 0 ? (
+                <Statistic
+                  value={this.state.bltp[1]}
+                  precision={2}
+                  valueStyle={{ color: "#006600" }}
+                  suffix="%"
+                  prefix={<ArrowUpOutlined />}
+                />
+              ) : (
+                <Statistic
+                  value={this.state.bltp[1]}
+                  precision={2}
+                  valueStyle={{ color: "#cf1322" }}
+                  suffix="%"
+                  prefix={<ArrowDownOutlined />}
+                />
+              )}
+              <Graph
+                labels={this.state.lablesbank}
+                data={this.state.databank}
+                title="NIFTI Bank"
+                grad="#ff66ff"
+                border="#ff4dff"
               />
-            )}
-            <Graph
-              labels={this.state.lablesbank}
-              data={this.state.databank}
-              title="NIFTI Bank"
-              grad="#ff66ff"
-              border="#ff4dff"
-            />
-            {/* </Card> */}
+            </Card>
           </Col>
           <Col span={6}>
-            {/* <Card style={{ width: "45vh",height:"35vh" }}> */}
-            <Statistic
-              title="INDIA VIX"
-              value={this.state.iltp[0]}
-              // value={this.state.iltp[1]}
-              // precision={2}
-              valueStyle={{ color: "#3f8600" }}
+            <Card
+              // style={{ width: "45vh", height: "35vh" }}
+              bordered={false}
+              className="Card"
+            >
+              <Statistic
+                title="INDIA VIX"
+                value={this.state.iltp[0]}
+                // value={this.state.iltp[1]}
+                // precision={2}
+                valueStyle={{ color: "#3f8600" }}
 
-              // suffix="%"
-            />
-            {this.state.iltp[1] > 0 ? (
-              <Statistic
-                value={this.state.iltp[1]}
-                precision={2}
-                valueStyle={{ color: "#006600" }}
-                suffix="%"
-                prefix={<ArrowUpOutlined />}
+                // suffix="%"
               />
-            ) : (
-              <Statistic
-                value={this.state.iltp[1]}
-                precision={2}
-                valueStyle={{ color: "#cf1322" }}
-                suffix="%"
-                prefix={<ArrowDownOutlined />}
+              {this.state.iltp[1] > 0 ? (
+                <Statistic
+                  value={this.state.iltp[1]}
+                  precision={2}
+                  valueStyle={{ color: "#006600" }}
+                  suffix="%"
+                  prefix={<ArrowUpOutlined />}
+                />
+              ) : (
+                <Statistic
+                  value={this.state.iltp[1]}
+                  precision={2}
+                  valueStyle={{ color: "#cf1322" }}
+                  suffix="%"
+                  prefix={<ArrowDownOutlined />}
+                />
+              )}
+              <Graph
+                labels={this.state.lablesindia}
+                data={this.state.dataindia}
+                title="INDIA vix"
+                grad="#ff9933"
+                border="#ff6600"
               />
-            )}
-            <Graph
-              labels={this.state.lablesindia}
-              data={this.state.dataindia}
-              title="INDIA vix"
-              grad="#ff9933"
-              border="#ff6600"
-            />
-            {/* </Card> */}
+            </Card>
           </Col>
         </Row>
-        <Row gutter={16}>
+        <Divider />
+        <Row gutter={16} justify="center">
           <Col span={12}>
             <TopTable
               Name={this.state.gainers}

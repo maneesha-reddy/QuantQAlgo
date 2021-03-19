@@ -1,43 +1,58 @@
-import pickle
-from django.http import HttpResponse
-from django.shortcuts import render
-from rest_framework.response import Response
-from rest_framework.views import APIView
+import django
+django.setup()
+from rest_framework.decorators import api_view
+from django.contrib.auth.models import User
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.keys import Keys
+from selenium import webdriver
+import itertools
+import socketio
+import eventlet
+import asyncio
+import logging
+import requests
+import talib
+from kiteconnect import KiteTicker
+from kiteconnect import KiteConnect
+import os
+import time
+from webbot import Browser
+from datetime import datetime, timedelta
+import talib as ta
+import numpy as np
+from pandas import json_normalize
+import pandas as pd
+from .serializers import ImageSerializer
+from .models import BackTest
 from rest_framework.generics import (
     CreateAPIView, ListCreateAPIView
 )
 from rest_framework.views import APIView
-from .models import BackTest
-from .serializers import ImageSerializer
+from rest_framework.response import Response
+from django.shortcuts import render
+from django.http import HttpResponse
+from django.contrib.auth import authenticate
+from twilio.rest import Client
+import pickle
+
 # from beautifultable import BeautifulTable
-import pandas as pd
-from pandas import json_normalize
-import numpy as np
-import talib as ta
-from datetime import datetime, timedelta
-import pandas as pd
-import numpy as np
-from webbot import Browser
-import time
-import os
-from kiteconnect import KiteConnect
-from kiteconnect import KiteTicker
-import talib
-import requests
-import logging
-import asyncio
-import eventlet
-import socketio
-import itertools
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.options import Options
 # from aiohttp import web
 # from aiohttp import WSMsgType
-from rest_framework.decorators import api_view
 async_mode = None
 basedir = os.path.dirname(os.path.realpath(__file__))
 sio = socketio.Server(cors_allowed_origins='*', async_mode=async_mode)
+
+
+def signal_message(msg):
+    account_sid = 'AC02a3fcc5d16857c0b417d5f854a007e9'
+    auth_token = '14e061a30b23cb9821d11365496fffc2'
+    client1 = Client(account_sid, auth_token)
+
+    message = client1.messages.create(
+        from_='+15094040805',
+        body=msg,
+        to='+919677480457'
+    )
 
 
 def access_token(api_secret, request_token, kite):
@@ -60,6 +75,9 @@ def accesskey():
     user_name = "RK2267"
     password = "Sbi@2021"
     pin = "489111"
+    # user_name = "SY5140"
+    # password = "Sbi@2021"
+    # pin = "489222"
     options = Options()
     options.add_argument('--no-sandbox')
     options.add_argument('--headless')
@@ -80,7 +98,7 @@ def accesskey():
     time.sleep(1)
     # element.close()
     url = driver.current_url.split("request_token=")[1].split("&")[0]
-    # print(url, "new url")
+    print(url, "new url")
     driver.quit()
 
     # web = Browser()
@@ -226,6 +244,7 @@ def indicator(tk, ltp, ohlc, ltp_df):
     global Rlen
     global Slen
     global Mlen
+    global codes_nse, codes_mcx, hlist_nse, hlist_mcx, hlist_mcx_m, hlist_mcx_e
     T2 = datetime.now()
     hr2 = int(T2.hour)
     min2 = int(T2.minute)
@@ -234,386 +253,480 @@ def indicator(tk, ltp, ohlc, ltp_df):
     loop = dict2[tk]
     # print(loop, "loop")
     ltp_f[loop] = ltp
+    day = T2.weekday()
+    T4 = str(T2).split(' ')[0]
+    flag2 = 1
+    # if(day != 5 and day != 6):
+    #     if(T4 in hlist_nse):
+    #         if(T4 in hlist_mcx):
+    #             flag2 = 0
+    #         else:
+    #             if(tk in codes_nse):
+    #                 flag2 = 0
+    #     else:
+    #         if(T4 in hlist_mcx):
+    #             if(tk in codes_mcx):
+    #                 ss = codes_mcx.index(tk)
+    #                 if(hlist_mcx_e[ss] == 'c'):
+    #                     flag2 = 0
+    #                 else:
+    #                     flag2 = 2
+    # else:
+    #     flag2 = 0
 
-    if(Rlen == 60):
-        if(Rhr1[loop]+1 == hr2 and Rmin1[loop] == min2):
-            print("RSI of "+str(code)+" updated at "+str(T2))
-            data1[loop] = data1[loop].append(ltp_df, ignore_index=True)
-            Rhr1[loop] = Rhr1[loop]+1
+    # if(flag2 == 1):
+    #     if(tk in codes_nse):
+    #         if(hr2 >= 15 and min2 > 32) or (hr2 > 15) or (hr2 <= 9 and min2 < 15) or (hr2 < 9):
+    #             flag2 = 0
+    #     elif(tk in codes_mcx):
+    #         if(hr2 >= 23 and min2 > 32) or (hr2 <= 9 and min2 < 15) or (hr2 < 9):
+    #             flag2 = 0
 
-    elif(Rlen == 30):
-        if(Rmin1[loop] == 15):
-            if(Rhr1[loop] == hr2 and min2 == 45):
-                print("RSI of "+str(code)+" updated at "+str(T2))
-                data1[loop] = data1[loop].append(ltp_df, ignore_index=True)
-                Rmin1[loop] = 45
-        elif(Rmin1[loop] == 45):
-            if(Rhr1[loop]+1 == hr2 and min2 == 15):
+    # if(flag2 == 2):
+    #     if(tk in codes_nse):
+    #         if(hr2 >= 15 and min2 > 32) or (hr2 > 15) or (hr2 <= 9 and min2 < 15) or (hr2 < 9):
+    #             flag2 = 0
+    #     elif(tk in codes_mcx):
+    #         if(hr2 >= 23 and min2 > 32) or (hr2 < 17):
+    #             flag2 = 0
+    #         else:
+    #             flag2 = 1
+
+    if(True):
+        if(Rlen == 60):
+            if(Rhr1[loop]+1 == hr2 and Rmin1[loop] >= 15):
                 print("RSI of "+str(code)+" updated at "+str(T2))
                 data1[loop] = data1[loop].append(ltp_df, ignore_index=True)
                 Rhr1[loop] = Rhr1[loop]+1
-                Rmin1[loop] = 15
 
-    elif(Rlen == 15):
-        if(Rmin1[loop] == 15):
-            if(Rhr1[loop] == hr2 and min2 == 30):
-                print("RSI of "+str(code)+" updated at "+str(T2))
-                data1[loop] = data1[loop].append(ltp_df, ignore_index=True)
-                Rmin1[loop] = 30
-        elif(Rmin1[loop] == 30):
-            if(Rhr1[loop] == hr2 and min2 == 45):
-                print("RSI of "+str(code)+" updated at "+str(T2))
-                data1[loop] = data1[loop].append(ltp_df, ignore_index=True)
-                Rmin1[loop] = 45
-        elif(Rmin1[loop] == 45):
-            if(Rhr1[loop]+1 == hr2 and min2 == 0):
-                print("RSI of "+str(code)+" updated at "+str(T2))
-                data1[loop] = data1[loop].append(ltp_df, ignore_index=True)
-                Rhr1[loop] = Rhr1[loop]+1
-                Rmin1[loop] = 0
-        elif(Rmin1[loop] == 0):
-            if(Rhr1[loop] == hr2 and min2 == 15):
-                print("RSI of "+str(code)+" updated at "+str(T2))
-                data1[loop] = data1[loop].append(ltp_df, ignore_index=True)
-                Rmin1[loop] = 15
-    elif(Rlen == 5):
-        if(Rhr1[loop] == hr2):
-            if(Rmin1[loop]+5 <= min2):
-                #                 print("RSI of "+str(code)+" updated at "+str(T2))
-                data1[loop] = data1[loop].append(ltp_df, ignore_index=True)
-                Rmin1[loop] = Rmin1[loop]+5
-        else:
-            if(min2 >= 0):
-                #                 print("RSI of "+str(code)+" updated at "+str(T2))
-                data1[loop] = data1[loop].append(ltp_df, ignore_index=True)
-                Rmin1[loop] = Rmin1[loop]+5
+            elif(Rlen == 30):
+                if(Rmin1[loop] == 15):
+                    if(Rhr1[loop] == hr2 and min2 >= 45):
+                        print("RSI of "+str(code)+" updated at "+str(T2))
+                        data1[loop] = data1[loop].append(
+                            ltp_df, ignore_index=True)
+                        Rmin1[loop] = 45
+                elif(Rmin1[loop] == 45):
+                    if(Rhr1[loop]+1 == hr2 and min2 >= 15):
+                        print("RSI of "+str(code)+" updated at "+str(T2))
+                        data1[loop] = data1[loop].append(
+                            ltp_df, ignore_index=True)
+                        Rhr1[loop] = Rhr1[loop]+1
+                        Rmin1[loop] = 15
 
-    # cc=data1[loop][-25:]
-    # print(cc)
-    close1 = data1[loop][['Close']][-26:-1]
-    # print(close1)
-    close1 = close1.append(ltp_df, ignore_index=True)
-    close2 = close1['Close']
-    # print(close2)
-    RSI1 = RSI(close2, 25)
-    # print(RSI)
-    v1 = RSI1
-    close11 = data1[loop]['Close'][-27:-1]
-    close12 = data1[loop]['Close'][-28:-2]
-    close13 = data1[loop]['Close'][-29:-3]
-    close14 = data1[loop]['Close'][-30:-4]
-    close15 = data1[loop]['Close'][-31:-5]
-    v11 = RSI(close11, 25)
-    v12 = RSI(close12, 25)
-    v13 = RSI(close13, 25)
-    v14 = RSI(close14, 25)
-    v15 = RSI(close15, 25)
-#     print(v1)
-
-    if(Mlen == 60):
-        if(Mhr1[loop]+1 == hr2 and Mmin1[loop] == min2):
-            print("MACD of "+str(code)+" updated at "+str(T2))
-            data3[loop] = data3[loop].append(ltp_df, ignore_index=True)
-            Mhr1[loop] = Mhr1[loop]+1
-
-    elif(Mlen == 30):
-        if(Mmin1[loop] == 15):
-            if(Mhr1[loop] == hr2 and min2 == 45):
-                print("MACD of "+str(code)+" updated at "+str(T2))
-                data3[loop] = data3[loop].append(ltp_df, ignore_index=True)
-                Mmin1[loop] = 45
-        elif(Mmin1[loop] == 45):
-            if(Mhr1[loop]+1 == hr2 and min2 == 15):
-                print("MACD of "+str(code)+" updated at "+str(T2))
-                data3[loop] = data3[loop].append(ltp_df, ignore_index=True)
-                Mhr1[loop] = Mhr1[loop]+1
-                Mmin1[loop] = 15
-
-    elif(Mlen == 15):
-        if(Mmin1[loop] == 15):
-            if(Mhr1[loop] == hr2 and min2 == 30):
-                print("MACD of "+str(code)+" updated at "+str(T2))
-                data3[loop] = data3[loop].append(ltp_df, ignore_index=True)
-                Mmin1[loop] = 30
-        elif(Mmin1[loop] == 30):
-            if(Mhr1[loop] == hr2 and min2 == 45):
-                print("MACD of "+str(code)+" updated at "+str(T2))
-                data3[loop] = data3[loop].append(ltp_df, ignore_index=True)
-                Mmin1[loop] = 45
-        elif(Mmin1[loop] == 45):
-            if(Mhr1[loop]+1 == hr2 and min2 == 0):
-                print("MACD of "+str(code)+" updated at "+str(T2))
-                data3[loop] = data3[loop].append(ltp_df, ignore_index=True)
-                Mhr1[loop] = Mhr1[loop]+1
-                Mmin1[loop] = 0
-        elif(Mmin1[loop] == 0):
-            if(Mhr1[loop] == hr2 and min2 == 15):
-                print("MACD of "+str(code)+" updated at "+str(T2))
-                data3[loop] = data3[loop].append(ltp_df, ignore_index=True)
-                Mmin1[loop] = 15
-
-    elif(Mlen == 5):
-        if(Mhr1[loop] == hr2):
-            if(Mmin1[loop]+5 <= min2):
-                #                 print("MACD of "+str(code)+" updated at "+str(T2))
-                data3[loop] = data3[loop].append(ltp_df, ignore_index=True)
-                Mmin1[loop] = Mmin1[loop]+5
-        else:
-            if(min2 >= 0):
-                #                 print("MACD of "+str(code)+" updated at "+str(T2))
-                data3[loop] = data3[loop].append(ltp_df, ignore_index=True)
-                Mmin1[loop] = Mmin1[loop]+5
-
-    dff = data3[loop][['Close']]
-    dff = dff.append(ltp_df, ignore_index=True)
-    macd3, sig3 = macd(dff, 12, 26, 9)
-    vm1 = macd3.iloc[-1]
-    vm2 = macd3.iloc[-2]
-    vm3 = macd3.iloc[-3]
-    vm4 = macd3.iloc[-4]
-    vm5 = macd3.iloc[-5]
-    vm6 = macd3.iloc[-6]
-    vs1 = sig3.iloc[-1]
-    vs2 = sig3.iloc[-2]
-    vs3 = sig3.iloc[-3]
-    vs4 = sig3.iloc[-4]
-    vs5 = sig3.iloc[-5]
-    vs6 = sig3.iloc[-6]
-#     print(vmt,vst,vmy,vsy)
-    v5 = 'No Cross-Over'
-    v21 = 0
-    v22 = 0
-    v23 = 0
-    v24 = 0
-    v25 = 0
-    if vm1 > 0 and vs1 > 0:
-        if vm1 > vs1 and vm2 < vs2:
-            v21 = 1
-            v5 = "Cross-Over above line"
-    if vm2 > 0 and vs2 > 0:
-        if vm2 > vs2 and vm3 < vs3:
-            v22 = 1
-            v5 = "Cross-Over above line"
-    if vm3 > 0 and vs3 > 0:
-        if vm3 > vs3 and vm4 < vs4:
-            v23 = 1
-            v5 = "Cross-Over above line"
-    if vm4 > 0 and vs4 > 0:
-        if vm4 > vs4 and vm5 < vs5:
-            v24 = 1
-            v5 = "Cross-Over above line"
-    if vm5 > 0 and vs5 > 0:
-        if vm5 > vs5 and vm6 < vs6:
-            v25 = 1
-            v5 = "Cross-Over above line"
-
-    v61 = 0
-    v62 = 0
-    v63 = 0
-    v64 = 0
-    v65 = 0
-    if vm1 < 0 and vs1 < 0:
-        if vm1 > vs1 and vm2 < vs2:
-            v61 = 1
-            v5 = "Cross-Over below line"
-    if vm2 < 0 and vs2 < 0:
-        if vm2 > vs2 and vm3 < vs3:
-            v62 = 1
-            v5 = "Cross-Over below line"
-    if vm3 < 0 and vs3 < 0:
-        if vm3 > vs3 and vm4 < vs4:
-            v63 = 1
-            v5 = "Cross-Over below line"
-    if vm4 < 0 and vs4 < 0:
-        if vm4 > vs4 and vm5 < vs5:
-            v64 = 1
-            v5 = "Cross-Over below line"
-    if vm5 < 0 and vs5 < 0:
-        if vm5 > vs5 and vm6 < vs6:
-            v65 = 1
-            v5 = "Cross-Over below line"
-
-    ohlc2 = {}
-    ohlc2['Open'] = ohlc['open']
-    ohlc2['High'] = ohlc['high']
-    ohlc2['Low'] = ohlc['low']
-    ohlc2['Close'] = ohlc['close']
-
-    if(Slen == 60):
-        if(Shr1[loop]+1 == hr2 and Smin1[loop] == min2):
-            print("STRD of "+str(code)+" updated at "+str(T2))
-            data2[loop] = data2[loop].append(ohlc2, ignore_index=True)
-            Shr1[loop] = Shr1[loop]+1
-
-    elif(Slen == 30):
-        if(Smin1[loop] == 15):
-            if(Shr1[loop] == hr2 and min2 == 45):
-                print("STRD of "+str(code)+" updated at "+str(T2))
-                data2[loop] = data2[loop].append(ohlc2, ignore_index=True)
-                Smin1[loop] = 45
-        elif(Smin1[loop] == 45):
-            if(Shr1[loop]+1 == hr2 and min2 == 15):
-                print("STRD of "+str(code)+" updated at "+str(T2))
-                data2[loop] = data2[loop].append(ohlc2, ignore_index=True)
-                Shr1[loop] = Shr1[loop]+1
-                Smin1[loop] = 15
-
-    elif(Slen == 15):
-        if(Smin1[loop] == 15):
-            if(Shr1[loop] == hr2 and min2 == 30):
-                print("STRDof "+str(code)+" updated at "+str(T2))
-                data2[loop] = data2[loop].append(ohlc2, ignore_index=True)
-                Smin1[loop] = 30
-        elif(Smin1[loop] == 30):
-            if(Shr1[loop] == hr2 and min2 == 45):
-                print("STRD of "+str(code)+" updated at "+str(T2))
-                data2[loop] = data2[loop].append(ohlc2, ignore_index=True)
-                Smin1[loop] = 45
-        elif(Smin1[loop] == 45):
-            if(Shr1[loop]+1 == hr2 and min2 == 0):
-                print("STRD of "+str(code)+" updated at "+str(T2))
-                data2[loop] = data2[loop].append(ohlc2, ignore_index=True)
-                Shr1[loop] = Shr1[loop]+1
-                Smin1[loop] = 0
-        elif(Smin1[loop] == 0):
-            if(Shr1[loop] == hr2 and min2 == 15):
-                print("STRD of "+str(code)+" updated at "+str(T2))
-                data2[loop] = data2[loop].append(ohlc2, ignore_index=True)
-                Smin1[loop] = 15
-
-    elif(Slen == 5):
-        if(Shr1[loop] == hr2):
-            if(Smin1[loop]+5 <= min2):
-                #                 print("STRD of "+str(code)+" updated at "+str(T2))
-                data2[loop] = data2[loop].append(ohlc2, ignore_index=True)
-                Smin1[loop] = Smin1[loop]+5
-        else:
-            if(min2 >= 0):
-                #                 print("STRD of "+str(code)+" updated at "+str(T2))
-                data3[loop] = data3[loop].append(ohlc2, ignore_index=True)
-                Mmin1[loop] = Mmin1[loop]+5
-
-    strd = data2[loop].iloc[-24:]
-    strd = strd.append(ohlc2, ignore_index=True)
-    ans2 = SuperTrend(strd, 15, 1.5)
-    # print(ans2)
-    v3 = ans2['STX_15_1.5'].iloc[-1]
-    v4 = ans2['ST_15_1.5'].iloc[-1]
-    # print(v3)
-    v31 = ans2['STX_15_1.5'].iloc[-2]
-    v32 = ans2['STX_15_1.5'].iloc[-3]
-    v33 = ans2['STX_15_1.5'].iloc[-4]
-    v34 = ans2['STX_15_1.5'].iloc[-5]
-    v35 = ans2['STX_15_1.5'].iloc[-6]
-    val = ''
-    if (v3 == "up" and v1 > 55 and (v21 == 1 or v22 == 1 or v23 == 1 or v24 == 1 or v25 == 1) and (not leflag[loop]) and (not seflag[loop])) or lsigflag[loop] == 1:
-        val = 'In-LE-For-A-While'
-        if((v31 == "down" or v32 == "down" or v33 == "down" or v34 == "down" or v35 == "down") and (v11 <= 55 or v12 <= 55 or v13 <= 55 or v14 <= 55 or v15 <= 55)) or lsigflag[loop] == 1:
-            print("check-1", v3, v1, v5,
-                  ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
-            if lsigflag[loop] == 0:
-                sigmin[loop] = int(min2)
-                lsigflag[loop] = 1
-                val = "Might-Give-A-LE-Signal"
-                print("LE-flag value at might= ",
-                      lsigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
-            elif lsigflag[loop] == 1 and sigmin[loop]+chtime <= int(min2):
-                print("check-2", v3, v1, v5,
-                      ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
-                if (v3 == "up" and v1 > 55 and (v21 == 1 or v22 == 1 or v23 == 1 or v24 == 1 or v25 == 1) and (not leflag[loop]) and (not seflag[loop])):
-                    val = "LE"
-                    leflag[loop] = True
-                    lxflag[loop] = False
-                    le_t.append(loop)
-                    lsigflag[loop] = 0
-                    sigmin[loop] = 0
+            elif(Rlen == 15):
+                if(Rmin1[loop] == 15):
+                    if(Rhr1[loop] == hr2 and min2 >= 30):
+                        print("RSI of "+str(code)+" updated at "+str(T2))
+                        data1[loop] = data1[loop].append(
+                            ltp_df, ignore_index=True)
+                        Rmin1[loop] = 30
+                elif(Rmin1[loop] == 30):
+                    if(Rhr1[loop] == hr2 and min2 >= 45):
+                        print("RSI of "+str(code)+" updated at "+str(T2))
+                        data1[loop] = data1[loop].append(
+                            ltp_df, ignore_index=True)
+                        Rmin1[loop] = 45
+                elif(Rmin1[loop] == 45):
+                    if(Rhr1[loop]+1 == hr2 and min2 >= 0 and min2 < 15):
+                        print("RSI of "+str(code)+" updated at "+str(T2))
+                        data1[loop] = data1[loop].append(
+                            ltp_df, ignore_index=True)
+                        Rhr1[loop] = Rhr1[loop]+1
+                        Rmin1[loop] = 0
+                elif(Rmin1[loop] == 0):
+                    if(Rhr1[loop] == hr2 and min2 >= 15):
+                        print("RSI of "+str(code)+" updated at "+str(T2))
+                        data1[loop] = data1[loop].append(
+                            ltp_df, ignore_index=True)
+                        Rmin1[loop] = 15
+            elif(Rlen == 10):
+                if(Rhr1[loop] == hr2):
+                    if(Rmin1[loop]+10 <= min2):
+                        print("RSI of "+str(code)+" updated at "+str(T2))
+                        data1[loop] = data1[loop].append(
+                            ltp_df, ignore_index=True)
+                        Rmin1[loop] = Rmin1[loop]+10
                 else:
-                    val = "LE-failed"
-                    lsigflag[loop] = 0
-                    sigmin[loop] = 0
-            else:
-                val = "Waiting-for-LE"
-                print("LE-flag value at wait= ",
-                      lsigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
-
-    elif v3 == "down" and (not lxflag[loop]):
-        val = "LX"
-        leflag[loop] = False
-        lxflag[loop] = True
-    elif (v3 == "down" and v1 < 45 and (v61 == 1 or v62 == 1 or v63 == 1 or v64 == 1 or v65 == 1) and (not leflag[loop]) and (not seflag[loop])) or ssigflag[loop] == 1:
-        val = 'In-SE-For-A-While'
-        if ((v31 == "up" or v32 == "up" or v33 == "up" or v34 == "up" or v35 == "up") and (v11 >= 45 or v12 >= 45 or v13 >= 45 or v14 >= 45 or v15 >= 45)) or ssigflag[loop] == 1:
-            print("check-1", v3, v1, v5,
-                  ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
-            if ssigflag[loop] == 0:
-                sigmin[loop] = int(min2)
-                ssigflag[loop] = 1
-                val = "Might-Give-A-SE-Signal"
-                print("SE-flag value at might= ",
-                      ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
-            if ssigflag[loop] == 1 and sigmin[loop]+chtime <= int(min2):
-                print("check-2", v3, v1, v5,
-                      ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
-                if (v3 == "down" and v1 < 45 and (v61 == 1 or v62 == 1 or v63 == 1 or v64 == 1 or v65 == 1) and (not leflag[loop]) and (not seflag[loop])):
-                    val = "SE"
-                    seflag[loop] = True
-                    sxflag[loop] = False
-                    se_t.append(loop)
-                    ssigflag[loop] = 0
-                    sigmin[loop] = 0
+                    if(min2 >= 5):
+                        print("RSI of "+str(code)+" updated at "+str(T2))
+                        data1[loop] = data1[loop].append(
+                            ltp_df, ignore_index=True)
+                        Rmin1[loop] = 5
+            elif(Rlen == 5):
+                if(Rhr1[loop] == hr2):
+                    if(Rmin1[loop]+5 <= min2):
+                        #                 print("RSI of "+str(code)+" updated at "+str(T2))
+                        data1[loop] = data1[loop].append(
+                            ltp_df, ignore_index=True)
+                        Rmin1[loop] = Rmin1[loop]+5
                 else:
-                    val = "SE-Failed"
-                    ssigflag[loop] = 0
-                    sigmin[loop] = 0
+                    if(min2 >= 0):
+                        #                 print("RSI of "+str(code)+" updated at "+str(T2))
+                        data1[loop] = data1[loop].append(
+                            ltp_df, ignore_index=True)
+                        Rmin1[loop] = 0
+
+            # cc=data1[loop][-25:]
+            # print(cc)
+            close1 = data1[loop][['Close']][-26:-1]
+            # print(close1)
+            close1 = close1.append(ltp_df, ignore_index=True)
+            close2 = close1['Close']
+            # print(close2)
+            RSI1 = RSI(close2, 25)
+            # print(RSI)
+            v1 = RSI1
+            close11 = data1[loop]['Close'][-27:-1]
+            close12 = data1[loop]['Close'][-28:-2]
+            close13 = data1[loop]['Close'][-29:-3]
+            close14 = data1[loop]['Close'][-30:-4]
+            close15 = data1[loop]['Close'][-31:-5]
+            v11 = RSI(close11, 25)
+            v12 = RSI(close12, 25)
+            v13 = RSI(close13, 25)
+            v14 = RSI(close14, 25)
+            v15 = RSI(close15, 25)
+        #     print(v1)
+
+            if(Mlen == 60):
+                if(Mhr1[loop]+1 == hr2 and Mmin1[loop] == min2):
+                    print("MACD of "+str(code)+" updated at "+str(T2))
+                    data3[loop] = data3[loop].append(ltp_df, ignore_index=True)
+                    Mhr1[loop] = Mhr1[loop]+1
+
+            elif(Mlen == 30):
+                if(Mmin1[loop] == 15):
+                    if(Mhr1[loop] == hr2 and min2 == 45):
+                        print("MACD of "+str(code)+" updated at "+str(T2))
+                        data3[loop] = data3[loop].append(
+                            ltp_df, ignore_index=True)
+                        Mmin1[loop] = 45
+                elif(Mmin1[loop] == 45):
+                    if(Mhr1[loop]+1 == hr2 and min2 == 15):
+                        print("MACD of "+str(code)+" updated at "+str(T2))
+                        data3[loop] = data3[loop].append(
+                            ltp_df, ignore_index=True)
+                        Mhr1[loop] = Mhr1[loop]+1
+                        Mmin1[loop] = 15
+
+            elif(Mlen == 15):
+                if(Mmin1[loop] == 15):
+                    if(Mhr1[loop] == hr2 and min2 == 30):
+                        print("MACD of "+str(code)+" updated at "+str(T2))
+                        data3[loop] = data3[loop].append(
+                            ltp_df, ignore_index=True)
+                        Mmin1[loop] = 30
+                elif(Mmin1[loop] == 30):
+                    if(Mhr1[loop] == hr2 and min2 == 45):
+                        print("MACD of "+str(code)+" updated at "+str(T2))
+                        data3[loop] = data3[loop].append(
+                            ltp_df, ignore_index=True)
+                        Mmin1[loop] = 45
+                elif(Mmin1[loop] == 45):
+                    if(Mhr1[loop]+1 == hr2 and min2 == 0):
+                        print("MACD of "+str(code)+" updated at "+str(T2))
+                        data3[loop] = data3[loop].append(
+                            ltp_df, ignore_index=True)
+                        Mhr1[loop] = Mhr1[loop]+1
+                        Mmin1[loop] = 0
+                elif(Mmin1[loop] == 0):
+                    if(Mhr1[loop] == hr2 and min2 == 15):
+                        print("MACD of "+str(code)+" updated at "+str(T2))
+                        data3[loop] = data3[loop].append(
+                            ltp_df, ignore_index=True)
+                        Mmin1[loop] = 15
+
+            elif(Mlen == 5):
+                if(Mhr1[loop] == hr2):
+                    if(Mmin1[loop]+5 <= min2):
+                        #                 print("MACD of "+str(code)+" updated at "+str(T2))
+                        data3[loop] = data3[loop].append(
+                            ltp_df, ignore_index=True)
+                        Mmin1[loop] = Mmin1[loop]+5
+                else:
+                    if(min2 >= 0):
+                        #                 print("MACD of "+str(code)+" updated at "+str(T2))
+                        data3[loop] = data3[loop].append(
+                            ltp_df, ignore_index=True)
+                        Mmin1[loop] = Mmin1[loop]+5
+
+            dff = data3[loop][['Close']]
+            dff = dff.append(ltp_df, ignore_index=True)
+            macd3, sig3 = macd(dff, 12, 26, 9)
+            vm1 = macd3.iloc[-1]
+            vm2 = macd3.iloc[-2]
+            vm3 = macd3.iloc[-3]
+            vm4 = macd3.iloc[-4]
+            vm5 = macd3.iloc[-5]
+            vm6 = macd3.iloc[-6]
+            vs1 = sig3.iloc[-1]
+            vs2 = sig3.iloc[-2]
+            vs3 = sig3.iloc[-3]
+            vs4 = sig3.iloc[-4]
+            vs5 = sig3.iloc[-5]
+            vs6 = sig3.iloc[-6]
+        #     print(vmt,vst,vmy,vsy)
+            v5 = 'No Cross-Over'
+            v21 = 0
+            v22 = 0
+            v23 = 0
+            v24 = 0
+            v25 = 0
+            if vm1 > 0 and vs1 > 0:
+                if vm1 > vs1 and vm2 < vs2:
+                    v21 = 1
+                    v5 = "Cross-Over above line"
+            if vm2 > 0 and vs2 > 0:
+                if vm2 > vs2 and vm3 < vs3:
+                    v22 = 1
+                    v5 = "Cross-Over above line"
+            if vm3 > 0 and vs3 > 0:
+                if vm3 > vs3 and vm4 < vs4:
+                    v23 = 1
+                    v5 = "Cross-Over above line"
+            if vm4 > 0 and vs4 > 0:
+                if vm4 > vs4 and vm5 < vs5:
+                    v24 = 1
+                    v5 = "Cross-Over above line"
+            if vm5 > 0 and vs5 > 0:
+                if vm5 > vs5 and vm6 < vs6:
+                    v25 = 1
+                    v5 = "Cross-Over above line"
+
+            v61 = 0
+            v62 = 0
+            v63 = 0
+            v64 = 0
+            v65 = 0
+            if vm1 < 0 and vs1 < 0:
+                if vm1 > vs1 and vm2 < vs2:
+                    v61 = 1
+                    v5 = "Cross-Over below line"
+            if vm2 < 0 and vs2 < 0:
+                if vm2 > vs2 and vm3 < vs3:
+                    v62 = 1
+                    v5 = "Cross-Over below line"
+            if vm3 < 0 and vs3 < 0:
+                if vm3 > vs3 and vm4 < vs4:
+                    v63 = 1
+                    v5 = "Cross-Over below line"
+            if vm4 < 0 and vs4 < 0:
+                if vm4 > vs4 and vm5 < vs5:
+                    v64 = 1
+                    v5 = "Cross-Over below line"
+            if vm5 < 0 and vs5 < 0:
+                if vm5 > vs5 and vm6 < vs6:
+                    v65 = 1
+                    v5 = "Cross-Over below line"
+
+            ohlc2 = {}
+            ohlc2['Open'] = ohlc['open']
+            ohlc2['High'] = ohlc['high']
+            ohlc2['Low'] = ohlc['low']
+            ohlc2['Close'] = ohlc['close']
+
+        #     if(Shr1[loop]+1==hr2 and Smin1[loop]==min2):
+        #         data2[loop]=data2[loop].append(ohlc2,ignore_index=True)
+        #         Shr1[loop]=Shr1[loop]+1
+
+            if(Slen == 60):
+                if(Shr1[loop]+1 == hr2 and Smin1[loop] == min2):
+                    print("STRD of "+str(code)+" updated at "+str(T2))
+                    data2[loop] = data2[loop].append(ohlc2, ignore_index=True)
+                    Shr1[loop] = Shr1[loop]+1
+
+            elif(Slen == 30):
+                if(Smin1[loop] == 15):
+                    if(Shr1[loop] == hr2 and min2 == 45):
+                        print("STRD of "+str(code)+" updated at "+str(T2))
+                        data2[loop] = data2[loop].append(
+                            ohlc2, ignore_index=True)
+                        Smin1[loop] = 45
+                elif(Smin1[loop] == 45):
+                    if(Shr1[loop]+1 == hr2 and min2 == 15):
+                        print("STRD of "+str(code)+" updated at "+str(T2))
+                        data2[loop] = data2[loop].append(
+                            ohlc2, ignore_index=True)
+                        Shr1[loop] = Shr1[loop]+1
+                        Smin1[loop] = 15
+
+            elif(Slen == 15):
+                if(Smin1[loop] == 15):
+                    if(Shr1[loop] == hr2 and min2 == 30):
+                        print("STRDof "+str(code)+" updated at "+str(T2))
+                        data2[loop] = data2[loop].append(
+                            ohlc2, ignore_index=True)
+                        Smin1[loop] = 30
+                elif(Smin1[loop] == 30):
+                    if(Shr1[loop] == hr2 and min2 == 45):
+                        print("STRD of "+str(code)+" updated at "+str(T2))
+                        data2[loop] = data2[loop].append(
+                            ohlc2, ignore_index=True)
+                        Smin1[loop] = 45
+                elif(Smin1[loop] == 45):
+                    if(Shr1[loop]+1 == hr2 and min2 == 0):
+                        print("STRD of "+str(code)+" updated at "+str(T2))
+                        data2[loop] = data2[loop].append(
+                            ohlc2, ignore_index=True)
+                        Shr1[loop] = Shr1[loop]+1
+                        Smin1[loop] = 0
+                elif(Smin1[loop] == 0):
+                    if(Shr1[loop] == hr2 and min2 == 15):
+                        print("STRD of "+str(code)+" updated at "+str(T2))
+                        data2[loop] = data2[loop].append(
+                            ohlc2, ignore_index=True)
+                        Smin1[loop] = 15
+
+            elif(Slen == 5):
+                if(Shr1[loop] == hr2):
+                    if(Smin1[loop]+5 <= min2):
+                        #                 print("STRD of "+str(code)+" updated at "+str(T2))
+                        data2[loop] = data2[loop].append(
+                            ohlc2, ignore_index=True)
+                        Smin1[loop] = Smin1[loop]+5
+                else:
+                    if(min2 >= 0):
+                        #                 print("STRD of "+str(code)+" updated at "+str(T2))
+                        data3[loop] = data3[loop].append(
+                            ohlc2, ignore_index=True)
+                        Mmin1[loop] = Mmin1[loop]+5
+
+            strd = data2[loop].iloc[-24:]
+            strd = strd.append(ohlc2, ignore_index=True)
+            ans2 = SuperTrend(strd, 15, 1.5)
+            # print(ans2)
+            v3 = ans2['STX_15_1.5'].iloc[-1]
+            v4 = ans2['ST_15_1.5'].iloc[-1]
+            # print(v3)
+            v31 = ans2['STX_15_1.5'].iloc[-2]
+            v32 = ans2['STX_15_1.5'].iloc[-3]
+            v33 = ans2['STX_15_1.5'].iloc[-4]
+            v34 = ans2['STX_15_1.5'].iloc[-5]
+            v35 = ans2['STX_15_1.5'].iloc[-6]
+            val = ''
+            if (v3 == "up" and v1 > 55 and (v21 == 1 or v22 == 1 or v23 == 1 or v24 == 1 or v25 == 1) and (not leflag[loop]) and (not seflag[loop])) or lsigflag[loop] == 1:
+                val = 'In-LE-For-A-While'
+                if((v31 == "down" or v32 == "down" or v33 == "down" or v34 == "down" or v35 == "down") and (v11 <= 55 or v12 <= 55 or v13 <= 55 or v14 <= 55 or v15 <= 55)) or lsigflag[loop] == 1:
+                    print("check-1", v3, v1, v5,
+                          ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
+                    if lsigflag[loop] == 0:
+                        sigmin[loop] = int(min2)
+                        lsigflag[loop] = 1
+                        val = "Might-Give-A-LE-Signal"
+                        print("LE-flag value at might= ",
+                              lsigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
+                    elif lsigflag[loop] == 1 and sigmin[loop]+chtime <= int(min2):
+                        print("check-2", v3, v1, v5,
+                              ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
+                        if (v3 == "up" and v1 > 55 and (v21 == 1 or v22 == 1 or v23 == 1 or v24 == 1 or v25 == 1) and (not leflag[loop]) and (not seflag[loop])):
+                            val = "LE"
+                            message1 = "signal detected at " + \
+                                str(T2)+"\n Long Entry for " + \
+                                code+" at INR "+str(ltp)
+                            signal_message(message1)
+                            leflag[loop] = True
+                            lxflag[loop] = False
+                            le_t.append(loop)
+                            lsigflag[loop] = 0
+                            sigmin[loop] = 0
+                        else:
+                            val = "LE-failed"
+                            lsigflag[loop] = 0
+                            sigmin[loop] = 0
+                    else:
+                        val = "Waiting-for-LE"
+                        print("LE-flag value at wait= ",
+                              lsigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
+
+            elif v3 == "down" and (not lxflag[loop]):
+                val = "LX"
+                message1 = "signal detected at " + \
+                    str(T2)+"\n Long Exit for "+code+" at INR "+str(ltp)
+                signal_message(message1)
+                leflag[loop] = False
+                lxflag[loop] = True
+            elif (v3 == "down" and v1 < 45 and (v61 == 1 or v62 == 1 or v63 == 1 or v64 == 1 or v65 == 1) and (not leflag[loop]) and (not seflag[loop])) or ssigflag[loop] == 1:
+                val = 'In-SE-For-A-While'
+                if ((v31 == "up" or v32 == "up" or v33 == "up" or v34 == "up" or v35 == "up") and (v11 >= 45 or v12 >= 45 or v13 >= 45 or v14 >= 45 or v15 >= 45)) or ssigflag[loop] == 1:
+                    print("check-1", v3, v1, v5,
+                          ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
+                    if ssigflag[loop] == 0:
+                        sigmin[loop] = int(min2)
+                        ssigflag[loop] = 1
+                        val = "Might-Give-A-SE-Signal"
+                        print("SE-flag value at might= ",
+                              ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
+                    if ssigflag[loop] == 1 and sigmin[loop]+chtime <= int(min2):
+                        print("check-2", v3, v1, v5,
+                              ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
+                        if (v3 == "down" and v1 < 45 and (v61 == 1 or v62 == 1 or v63 == 1 or v64 == 1 or v65 == 1) and (not leflag[loop]) and (not seflag[loop])):
+                            val = "SE"
+                            message1 = "signal detected at " + \
+                                str(T2)+"\n Short Entry for " + \
+                                code+" at INR "+str(ltp)
+                            signal_message(message1)
+                            seflag[loop] = True
+                            sxflag[loop] = False
+                            se_t.append(loop)
+                            ssigflag[loop] = 0
+                            sigmin[loop] = 0
+                        else:
+                            val = "SE-Failed"
+                            ssigflag[loop] = 0
+                            sigmin[loop] = 0
+                    else:
+                        val = "Waiting-for-SE"
+                        print("SE-flag value at wait= ",
+                              ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
+            elif v3 == "up" and (not sxflag[loop]):
+                val = "SX"
+                message1 = "signal detected at " + \
+                    str(T2)+"\n Short Exit for "+code+" at INR "+str(ltp)
+                signal_message(message1)
+                seflag[loop] = False
+                sxflag[loop] = True
             else:
-                val = "Waiting-for-SE"
-                print("SE-flag value at wait= ",
-                      ssigflag[loop], sigmin[loop], dict1[dict3[loop]], T2)
-    elif v3 == "up" and (not sxflag[loop]):
-        val = "SX"
-        seflag[loop] = False
-        sxflag[loop] = True
-    else:
-        if (leflag[loop] == True):
-            # print(code,end=' ')
-            val = "buy already"
+                if (leflag[loop] == True):
+                    # print(code,end=' ')
+                    val = "buy already"
 
-        elif (seflag[loop] == True):
-            # print(code,end=' ')
-            val = "short already"
-        else:
-            # print(code,end=' ')
-            val = "NO-TRADE"
+                elif (seflag[loop] == True):
+                    # print(code,end=' ')
+                    val = "short already"
+                else:
+                    # print(code,end=' ')
+                    val = "NO-TRADE"
 
-    if(val != signal[loop] and val != "NO-TRADE") or (val == "LE") or (val == "SE"):
-        signal[loop] = val
-#         res=str(code)+" "+str(val)+" "+"LTP="+str(ltp)+" "+" RSI="+str(v1)+" "+" SUPERTEND="+str(v4)+" "+str(v3)+" "+"MACD= "+v5+" TIMESTAMP="+str(T2)+"\n"
-#         print(res)
-#         print(code,val,ltp,v1,v4,v3,T2)
-        file1 = open("MACD_Added_LiveTest_Results.txt", "a+")
-    # print(code,val,ltp,v1,v4,v3,T2)
-        res = str(code)+" "+str(val)+" "+"LTP="+str(ltp)+" "+" RSI="+str(v1)+" " + \
-            " SUPERTEND="+str(v4)+" "+str(v3)+" "+"MACD= " + \
-            v5+" TIMESTAMP="+str(T2)+"\n"
-        print(res)
-        file1.write(res)
-        file1.close()
-#     res=str(code)+" "+str(val)+" "+"LTP="+str(ltp)+" "+" RSI="+str(v1)+" "+" SUPERTEND="+str(v4)+" "+str(v3)+" "+"MACD= "+v5+" TIMESTAMP="+str(T2)+"\n"
-#     print(res)
+            if(val != signal[loop] and val != "NO-TRADE") or (val == "LE") or (val == "SE"):
+                signal[loop] = val
+        #         res=str(code)+" "+str(val)+" "+"LTP="+str(ltp)+" "+" RSI="+str(v1)+" "+" SUPERTEND="+str(v4)+" "+str(v3)+" "+"MACD= "+v5+" TIMESTAMP="+str(T2)+"\n"
+        #         print(res)
+        #         print(code,val,ltp,v1,v4,v3,T2)
+                file1 = open("MACD_Added_LiveTest_Results.txt", "a+")
+            # print(code,val,ltp,v1,v4,v3,T2)
+                res = str(code)+" "+str(val)+" "+"LTP="+str(ltp)+" "+" RSI="+str(v1)+" " + \
+                    " SUPERTEND="+str(v4)+" "+str(v3)+" " + \
+                    "MACD= "+v5+" TIMESTAMP="+str(T2)+"\n"
+                print(res)
+                file1.write(res)
+                file1.close()
+        #     res=str(code)+" "+str(val)+" "+"LTP="+str(ltp)+" "+" RSI="+str(v1)+" "+" SUPERTEND="+str(v4)+" "+str(v3)+" "+"MACD= "+v5+" TIMESTAMP="+str(T2)+"\n"
+        #     print(res)
 
-    for j in range(len(dict3)):
-        if lsigflag[j] == 1:
-            if sigmin[j]+chtime < int(min2):
-                print("Flag of "+str(dict1[dict3[j]]) +
-                      " is made 0 ", sigmin[j], min2)
-                lsigflag[j] = 0
-                sigmin[j] = 0
-        if ssigflag[j] == 1:
-            if sigmin[j]+chtime < int(min2):
-                print("Flag of "+str(dict1[dict3[j]]) +
-                      " is made 0", sigmin[j], min2)
-                ssigflag[j] = 0
-                sigmin[j] = 0
+            for j in range(len(dict3)):
+                if lsigflag[j] == 1:
+                    if sigmin[j]+chtime < int(min2):
+                        print(
+                            "Flag of "+str(dict1[dict3[j]])+" is made 0 ", sigmin[j], min2)
+                        lsigflag[j] = 0
+                        sigmin[j] = 0
+                if ssigflag[j] == 1:
+                    if sigmin[j]+chtime < int(min2):
+                        print(
+                            "Flag of "+str(dict1[dict3[j]])+" is made 0", sigmin[j], min2)
+                        ssigflag[j] = 0
+                        sigmin[j] = 0
 
 
 def on_connect(ws, response):
@@ -660,6 +773,9 @@ def on_ticks(ws, ticks):
     global itime
     global s
     global allltp
+    # print("hiiiiiiiiiiiiiiii")
+    # print(len(ticks))
+    # print(ticks)
     for i in range(len(ticks)):
         # print(i, end=" ")
         c = close[ticks[i]['instrument_token']]
@@ -669,25 +785,26 @@ def on_ticks(ws, ticks):
         if ticks[i]['instrument_token'] == 256265:
             date = ticks[i]['timestamp']
             time = date.time()
-            time = str(time)
+            time = str(time)[:5]
             nltp = [ticks[i]['last_price'], ((ticks[i]['last_price']-c)/c)*100]
+            # print(nltp, "nifti")
             ntime = time
         if ticks[i]['instrument_token'] == 265:
             date = ticks[i]['timestamp']
             time = date.time()
-            time = str(time)
+            time = str(time)[:5]
             sltp = [ticks[i]['last_price'], ((ticks[i]['last_price']-c)/c)*100]
             stime = time
         if ticks[i]['instrument_token'] == 260105:
             date = ticks[i]['timestamp']
             time = date.time()
-            time = str(time)
+            time = str(time)[:5]
             bltp = [ticks[i]['last_price'], ((ticks[i]['last_price']-c)/c)*100]
             btime = time
         if ticks[i]['instrument_token'] == 264969:
             date = ticks[i]['timestamp']
             time = date.time()
-            time = str(time)
+            time = str(time)[:5]
             iltp = [ticks[i]['last_price'], ((ticks[i]['last_price']-c)/c)*100]
             itime = time
             logging.debug("Ticks: {}".format(ticks))
@@ -696,18 +813,24 @@ def on_ticks(ws, ticks):
         ohlc = ticks[i]['ohlc']
         ltp_df = {'Close': ltp}
         tk = ticks[i]['instrument_token']
-        if tk in stocknumbers:
-            indicator(tk, ltp, ohlc, ltp_df)
+        # if tk in stocknumbers:
+        indicator(tk, ltp, ohlc, ltp_df)
+        # print(stocknumbers)
 
     s = {k: v for k, v in sorted(s.items(), key=lambda item: item[1])}
     global le_t
+    print(le_t)
 
     # print("\n", le_t, "le_t")
     for i in le_t:
         # print(dict3[i])
         paperNames.append(dict1[dict3[i]])
+
+    # if paperNames != []:
+    print("PaperNames", paperNames)
     global papercapital
-    invst = papercapital/4
+    global slots
+    invst = papercapital/slots
 
     if 0 in trade_flag:
         pos = trade_flag.index(0)
@@ -744,8 +867,17 @@ def on_ticks(ws, ticks):
                     print(trade_name[pos], trade_flag[pos],
                           entry_val[pos], size[pos])
                     se_t.pop()
+    if slots > len(trade_flag):
+        for i in range(slots-len(trade_flag)):
+            trade_tokens.append(0)
+            trade_flag.append(0)
+            trade_name.append('')
+            entry_val.append(0)
+            pnl.append(0)
+            size.append(0)
+            trade_ltp.append(0)
 
-    for i in range(4):
+    for i in range(slots):
         if trade_flag[i] != 0:
             if trade_flag[i] == 1:
                 loop = dict2[trade_tokens[i]]
@@ -779,7 +911,8 @@ def on_ticks(ws, ticks):
                     trade_flag[i] = 0
                     print("trade closed")
                     print(trade_name[i], pnl[i])
-    # print(papercapital)
+
+        # print(papercapital)
 
 
 def background_thread():
@@ -788,24 +921,28 @@ def background_thread():
     print("hi")
     kws.connect(threaded=True, disable_ssl_verification=False)
     while True:
+        t2 = (datetime.now())
         if count % 120 == 1:
             print(count)
-            # print(datetime.now())
             if(len(nltp) != 0):
-                niftiltp.append(nltp[0])
-                niftitime.append(ntime)
+                if str(t2.time()) < "15:31:00" and str(t2.time()) >= "09:15:00":
+                    niftiltp.append(nltp[0])
+                    niftitime.append(ntime)
+                    sensexltp.append(sltp[0])
+                    sensextime.append(stime)
+                    bankltp.append(bltp[0])
+                    banktime.append(btime)
+                    indialtp.append(iltp[0])
+                    indiatime.append(itime)
                 sio.emit('niftidata', niftiltp)
                 sio.emit('niftitime', niftitime)
-                sensexltp.append(sltp[0])
-                sensextime.append(stime)
+
                 sio.emit('sensexdata', sensexltp)
                 sio.emit('sensextime', sensextime)
-                bankltp.append(bltp[0])
-                banktime.append(btime)
+
                 sio.emit('bankdata', bankltp)
                 sio.emit('banktime', banktime)
-                indialtp.append(iltp[0])
-                indiatime.append(itime)
+
                 sio.emit('indiadata', indialtp)
                 sio.emit('indiatime', indiatime)
         k = list(s)
@@ -876,25 +1013,14 @@ def prevdata(token, acc_key):
         today = datetime.utcnow().date()
         yesterday = today - timedelta(days=1)
         t1 = str(yesterday)+"+"+"09:15:00"
-        t2 = str(yesterday)+"+"+"22:30:00"
+        t2 = str(yesterday)+"+"+"15:30:00"
     else:
         today = datetime.utcnow().date()
         t1 = str(today)+"+"+"09:15:00"
-        t2 = str(today)+"+"+str(t2.time())
-
-    # if str(t2.time()) > '15:30:00':
-    #     t2 = str(t2.date())+' '+'15:30:00'
-    #     print(t2)
-    # t1 = str(t1)
-    # t2 = str(t2)
-    # t1 = t1.split(" ")
-    # t3 = t1[1].split(':')
-    # t3[0] = '09'
-    # t3[1] = '15'
-    # t3 = t3[0]+':'+t3[1]+':'+t3[2]
-    # t1 = t1[0]+"+"+t3
-    # t2 = t2.split(" ")
-    # t2 = t2[0]+"+"+t2[1]
+        if str(t2.time()) < "15:31:00":
+            t2 = str(today)+"+"+str(t2.time())
+        else:
+            t2 = str(today)+"+"+str("15:31:00")
     print(t1)
     print(t2)
     url2 = "https://api.kite.trade/instruments/historical/" + \
@@ -914,7 +1040,7 @@ def prevdata(token, acc_key):
         # print(dat2[i][0])
         d = dat2[i][0].split("T")
         d = d[1].split("+")
-        timestamp.append(d[0])
+        timestamp.append(d[0][:5])
         close1.append(dat2[i][4])
     return timestamp, close1
 
@@ -993,21 +1119,22 @@ se_t = []
 keys = list(dict1)
 close = {}
 s = {}
+slots = 4
 papercapital = 0
-trade_tokens = [0 for i in range(4)]
-trade_flag = [0 for i in range(4)]
-trade_name = ['' for i in range(4)]
-entry_val = [0 for i in range(4)]
-pnl = [0 for i in range(4)]
-size = [0 for i in range(4)]
-trade_ltp = [0 for i in range(4)]
+trade_tokens = [0 for i in range(slots)]
+trade_flag = [0 for i in range(slots)]
+trade_name = ['' for i in range(slots)]
+entry_val = [0 for i in range(slots)]
+pnl = [0 for i in range(slots)]
+size = [0 for i in range(slots)]
+trade_ltp = [0 for i in range(slots)]
 token1 = 0
 token2 = 0
 stocknumbers = []
 
 today = datetime.utcnow().date()
 # print(today)
-yesterday = today - timedelta(days=7)
+yesterday = today - timedelta(days=3)
 t1 = str(yesterday)+"+"+"14:15:00"
 t2 = str(today)+"+"+"04:30:00"
 
@@ -1022,13 +1149,29 @@ for i in range(len(dict3)):
                "Authorization": "token pv2830q1vbrhu1eu:"+acc_key}
     res2 = requests.get(url2, headers=HEADERS)
     data2 = res2.json()
-    # print(data2)
+    # print(data2, "data")
     data2 = data2["data"]["candles"]
 
     # if i == 137:
     #     # print(data2)
     # global close
     close[keys[i]] = data2[-1][4]
+
+
+niftitime, niftiltp = prevdata(256265, acc_key)
+# print(niftiltp)
+sensextime, sensexltp = prevdata(265, acc_key)
+banktime, bankltp = prevdata(260105, acc_key)
+indiatime, indialtp = prevdata(264969, acc_key)
+# print(sensextime, "nifti")
+kws = KiteTicker("pv2830q1vbrhu1eu", acc_key)
+kws.on_ticks = on_ticks
+kws.on_close = on_close
+kws.on_error = on_error
+kws.on_connect = on_connect
+kws.on_reconnect = on_reconnect
+kws.on_noreconnect = on_noreconnect
+
 
 data1 = ['' for i in range(len(dict3))]
 data2 = ['' for i in range(len(dict3))]
@@ -1043,9 +1186,16 @@ sigmin = [0 for i in range(len(dict3))]
 lsigflag = [0 for i in range(len(dict3))]
 ssigflag = [0 for i in range(len(dict3))]
 chtime = 0  # check-time for a signal in minutes
-Rlen = 60  # RSI time-period : Allowed - 15,30,60(in minutes)
-Slen = 60  # SuperTrend time-period : Allowed - 15,30,60(in minutes)
-Mlen = 60  # MACD time-period : Allowed - 15,30,60(in minutes)
+Rlen = 15  # RSI time-period : Allowed - 15,30,60(in minutes)
+Slen = 15  # SuperTrend time-period : Allowed - 15,30,60(in minutes)
+Mlen = 15  # MACD time-period : Allowed - 15,30,60(in minutes)
+
+hlist_nse = ['2021-01-26', '2021-03-11', '2021-03-29', '2021-04-02', '2021-04-14', '2021-04-21', '2021-05-13',
+             '2021-07-21', '2021-08-19', '2021-09-10', '2021-10-15', '2021-11-04', '2021-11-05', '2021-11-19']
+hlist_mcx = ['2021-01-01', '2021-03-11', '2021-03-29', '2021-04-02', '2021-04-14',
+             '2021-04-21', '2021-05-25', '2021-11-04', '2021-11-05', '2021-11-30']
+hlist_mcx_m = ['o', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c', 'c']
+hlist_mcx_e = ['c', 'o', 'o', 'c', 'o', 'o', 'o', 'o', 'o']
 
 for i in range(len(dict3)):
     # print(i)
@@ -1164,40 +1314,15 @@ for i in range(len(dict3)):
     Mmin1[i] = int(TM1.split(':')[1])
 
 
-niftitime, niftiltp = prevdata(256265, acc_key)
-# print(niftiltp)
-sensextime, sensexltp = prevdata(265, acc_key)
-banktime, bankltp = prevdata(260105, acc_key)
-indiatime, indialtp = prevdata(264969, acc_key)
-# print(sensextime, "nifti")
-kws = KiteTicker("pv2830q1vbrhu1eu", acc_key)
-kws.on_ticks = on_ticks
-kws.on_close = on_close
-kws.on_error = on_error
-kws.on_connect = on_connect
-kws.on_reconnect = on_reconnect
-kws.on_noreconnect = on_noreconnect
-
-
 @api_view(['GET', 'POST'])
 def papertrade(request):
     global papercapital
     print(request.data, "data")
-    # global trade_flag, trade_tokens, trade_name, pnl, size, trade_ltp, token1, token2,entry_val
     papercapital = 0
-    # trade_tokens = [0 for i in range(4)]
-    # trade_flag = [0 for i in range(4)]
-    # trade_name = ['' for i in range(4)]
-    # entry_val = [0 for i in range(4)]
-    # pnl = [0 for i in range(4)]
-    # size = [0 for i in range(4)]
-    # trade_ltp = [0 for i in range(4)]
-    # token1 = 0
-    # token2 = 0
-
     papercapital = request.data['capital']
     stocknames = request.data['Stocks']
     global stocknumbers
+    stocknumbers = []
     for i in stocknames:
         if type(i) is list:
             for j in i:
@@ -1212,6 +1337,54 @@ def papertrade(request):
     sio.emit('paper', paperNames)
 
     return Response({"message": papercapital, "Names": paperNames})
+
+
+@api_view(['GET', 'POST'])
+def livetrade(request):
+    global papercapital
+    print(request.data, "data")
+    papercapital = 0
+    papercapital = request.data['capital']
+    stocknames = request.data['Stocks']
+    global stocknumbers
+    stocknumbers = []
+    global slots
+    slots = int(request.data['slot'])
+    for i in stocknames:
+        if type(i) is list:
+            for j in i:
+                stocknumbers.append(list(dict1.keys())[
+                                    list(dict1.values()).index(j)])
+        else:
+            stocknumbers.append(list(dict1.keys())[
+                                list(dict1.values()).index(i)])
+    print(stocknumbers, "stocknumbers")
+
+    print(papercapital, "feuh")
+    sio.emit('paper', paperNames)
+
+    return Response({"message": papercapital, "Names": paperNames})
+
+
+@api_view(['GET', 'POST'])
+def signup(request):
+    user = User.objects.create_user(username=request.data['email'], first_name=request.data['firstName'],
+                                    last_name=request.data['lastName'], password=request.data['password'])
+    print(User.objects.all())
+    return Response({"sucessful": 1})
+
+
+@api_view(['GET', 'POST'])
+def signin(request):
+    print(request, "request")
+    user = authenticate(
+        username=request.data['email'], password=request.data['password'])
+    if user is not None:
+        print("yes")
+        return Response({"sucessful": True})
+    else:
+        print("No")
+        return Response({"sucessful": False})
 
 
 class ImageCreateView(CreateAPIView):

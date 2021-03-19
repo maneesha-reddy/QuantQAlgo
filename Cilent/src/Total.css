@@ -1,0 +1,162 @@
+.darkmode {
+  background-color: black;
+  color: white;
+}
+.darkmode .ant-layout {
+  background-color: black;
+}
+.darkmode .ant-card-body {
+  background-color: #141414;
+  align-items: center;
+  color: white;
+  /* height: 250px; */
+}
+
+.darkmode .ant-card.Card {
+  background-color: #141414;
+  align-items: center;
+  height: 250px;
+  color: white;
+}
+
+.darkmode .ant-layout-header {
+  background-color: #1f1f1f;
+}
+
+.darkmode .MuiTypography-root {
+  color: white;
+}
+
+.darkmode .MuiFormLabel-root {
+  color: white;
+}
+
+.darkmode .MuiOutlinedInput-notchedOutline {
+  border-color: white;
+}
+
+.darkmode .MuiOutlinedInput-input {
+  color: white;
+}
+.darkmode .ant-table.ant-table-small {
+  font-size: 14px;
+  background-color: #141414;
+  color: white;
+}
+
+.darkmode .ant-layout-content {
+  min-height: 546px;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+}
+
+.darkmode .ant-statistic-title {
+  color: white;
+}
+.darkmode .ant-statistic-content {
+  color: white;
+}
+.darkmode .ant-menu {
+  background-color: #1a1a1d;
+}
+.darkmode .ant-layout-sider-children {
+  background-color: #1f1f1f;
+}
+.darkmode .ant-menu-dark.ant-menu-inline {
+  background-color: #1f1f1f;
+}
+
+.darkmode .ant-menu-dark .ant-menu-inline.ant-menu-sub {
+  background-color: #141414;
+}
+
+.darkmode .ant-form-item-label > label {
+  color: white;
+}
+.darkmode .ant-table-small .ant-table-thead > tr > th {
+  background-color: #141414;
+  color: white;
+}
+
+.darkmode .ant-select-multiple .ant-select-selector {
+  background-color: black;
+  color: white;
+}
+.darkmode
+  .ant-select-single:not(.ant-select-customize-input)
+  .ant-select-selector {
+  background-color: black;
+  color: white;
+}
+.darkmode .MuiInputBase-input {
+  color: white;
+}
+.darkmode .ant-input-number-sm input {
+  background-color: #141414;
+  color: white;
+}
+
+#root > section > header > div > div > div {
+  background-color: transparent;
+  border: transparent;
+  color: white;
+}
+/* .darkmode .ant-statistic-content-value{
+  color:#b2f1e8;
+} */
+.darkmode .ant-select-multiple .ant-select-selection-item-content {
+  color: black;
+}
+.darkmode .ant-list-item {
+  color: white;
+}
+.darkmode
+  .ant-steps-item-wait
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  color: white;
+}
+.darkmode
+  .ant-steps-item-process
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  color: white;
+}
+.darkmode .ant-steps-item-wait .ant-steps-item-icon > .ant-steps-icon {
+  color: white;
+}
+
+.darkmode .ant-steps-item-wait .ant-steps-item-icon {
+  background-color: black;
+  border-color: white;
+}
+.ant-card-head {
+  background-color: #a9d134;
+}
+
+.darkmode .ant-card-head {
+  background-color: #a9d134;
+}
+
+.darkmode .MuiTableContainer-root {
+  background-color: #141414;
+}
+.darkmode .MuiTableCell-head {
+  color: white;
+}
+.darkmode .MuiTableCell-body {
+  color: white;
+}
+.darkmode
+  .ant-steps-item-finish
+  > .ant-steps-item-container
+  > .ant-steps-item-content
+  > .ant-steps-item-title {
+  color: white;
+}
+.darkmode .ant-checkbox + span {
+  color: white;
+}

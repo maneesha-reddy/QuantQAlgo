@@ -141,7 +141,7 @@ class Backlist extends Component {
     for (var key of data.entries()) {
       console.log(key[0] + ", " + key[1]);
     }
-    let url = "http://18.220.64.132:8000/website/create/";
+    let url = "https://18.220.64.132/website/create/";
     axios.post(url, data, {}).then((res) => {
       console.warn(res.data);
       // console.warn(res.data);
@@ -214,6 +214,7 @@ class Backlist extends Component {
               hoverable
               // title="BackTesting"
               style={{ width: 700 }}
+              bordered={false}
             >
               <div>
                 <Button

@@ -10,13 +10,14 @@ import { Input } from "antd";
 import { Select } from "antd";
 import { Form, Button } from "antd";
 import "./PaperTrade.css";
-import { List } from "antd";
+import { List, Typography, Divider } from "antd";
 import axios from "axios";
 import { socket } from "../dashboard/Dashboard";
-import { Tag, Divider } from "antd";
+import { Tag } from "antd";
 import TextField from "@material-ui/core/TextField";
 import { Modal } from "antd";
-
+// import Divider from "@material-ui/core/Divider";
+import Grid from "@material-ui/core/Grid";
 import { TreeSelect } from "antd";
 
 const { TreeNode } = TreeSelect;
@@ -44,7 +45,7 @@ class PaperTrade extends Component {
       titles: ["Bank Sector", "IT sector"],
       ex: [
         ['"BANKBARODA"', '"HDFC"', '"HDFCBANK"', '"HDFCLIFE"'],
-        ["WIPRO", "L&T", "TCS", "INFOSYS"],
+        ['"WIPRO"', '"LT"', '"TCS"', '"INFY"'],
       ],
       cat: "",
       isModalVisible: false,
@@ -282,6 +283,7 @@ class PaperTrade extends Component {
     }
 
     const IT = [];
+    const child = [0, 1, 2, 3];
     for (let i = 0; i < it.length; i++) {
       IT.push(<Option key={it[i]}>{it[i]}</Option>);
     }
@@ -335,7 +337,9 @@ class PaperTrade extends Component {
     const onFinish = (values) => {
       console.log("Success:", values);
       this.setState({ paper: true });
-      let url = "http://18.220.64.132:8000/website/papertrade/";
+      let url = "https://quantqalgo.ddns.net/website/papertrade/";
+
+      // let url = "http://127.0.0.1:8000/website/papertrade/";
       axios.post(url, values, {}).then((res) => {
         console.warn(res.data);
       });
@@ -353,6 +357,14 @@ class PaperTrade extends Component {
     const onFinishFailed = (errorInfo) => {
       console.log("Failed:", errorInfo);
     };
+
+    const layout = {
+      labelCol: { span: 8 },
+      wrapperCol: { span: 16 },
+    };
+    const tailLayout = {
+      wrapperCol: { offset: 8, span: 16 },
+    };
     return (
       <div>
         <Breadcrumb style={{ margin: "16px 0" }}>
@@ -362,20 +374,40 @@ class PaperTrade extends Component {
           <Breadcrumb.Item>Deployment</Breadcrumb.Item>
           <Breadcrumb.Item>PaperTrade</Breadcrumb.Item>
         </Breadcrumb>
-        <Row>
-          <Col span={12}>
-            <Form name="basic" onFinish={onFinish}>
-              <Form.Item label="Capital" name="capital">
-                <Slider
-                  style={{ left: "0%", right: "auto", width: "92.7%" }}
-                  //  color="#ff9933"
-                  min={0}
-                  max={100000}
-                  onChange={this.onCapitalChange}
-                  value={typeof inputValue === "number" ? inputValue : 0}
-                  step={100}
-                />
-              </Form.Item>
+        <Row justify="center">
+          {/* <Col span={12}> */}
+          <Card
+            hoverable
+            // title="BackTesting"
+            style={{ width: 700 }}
+            bordered={false}
+          >
+            <Form {...layout} name="basic" onFinish={onFinish}>
+              <Row>
+                <Col span={18}>
+                  <Form.Item label="Capital" name="capital">
+                    <Slider
+                      style={{ left: "0%", right: "auto", width: "92.7%" }}
+                      //  color="#ff9933"
+                      min={0}
+                      max={100000}
+                      onChange={this.onCapitalChange}
+                      value={typeof inputValue === "number" ? inputValue : 0}
+                      step={100}
+                    />
+                  </Form.Item>
+                </Col>
+                <Col span={4}>
+                  <InputNumber
+                    min={0}
+                    max={100000}
+                    style={{ margin: "0 16px" }}
+                    step={100}
+                    value={inputValue}
+                    onChange={this.onChange}
+                  />
+                </Col>
+              </Row>
               <Form.Item
                 // style={{ fontWeight: "bolder" }}
                 name="Strategy"
@@ -532,7 +564,7 @@ class PaperTrade extends Component {
                     </Select>
                   </Form.Item>
 
-                  <Form.Item>
+                  <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit">
                       Submit
                     </Button>
@@ -544,7 +576,7 @@ class PaperTrade extends Component {
                 {this.state.exchange == "NSE" ? (
                   <TreeSelect
                     showSearch
-                    // style={{ width: "100%" }}
+                    style={{ width: "60%" }}
                     treeDataSimpleMode={true}
                     value={this.state.value}
                     dropdownStyle={{ maxHeight: 400, overflow: "auto" }}
@@ -568,7 +600,7 @@ class PaperTrade extends Component {
                 ) : (
                   <Select
                     mode="tags"
-                    style={{ width: "100%" }}
+                    style={{ width: "60%" }}
                     placeholder="Stocks"
                     onChange={handleChange}
                   >
@@ -577,80 +609,100 @@ class PaperTrade extends Component {
                 )}
               </Form.Item>
 
-              <Form.Item>
+              <Form.Item {...tailLayout}>
                 <Button type="primary" htmlType="submit">
                   PaperTrade
                 </Button>
               </Form.Item>
             </Form>
-          </Col>
-          <Col span={4}>
-            <InputNumber
-              min={0}
-              max={100000}
-              style={{ margin: "0 16px" }}
-              step={100}
-              value={inputValue}
-              onChange={this.onChange}
-            />
-          </Col>
-          <Col>
-            <Card>
-              <Statistic
-                title="Profit/Loss"
-                value={0}
-                // precision={2}
-                valueStyle={{ color: "#3f8600" }}
-                prefix={<ArrowUpOutlined />}
-                suffix="%"
-              />
-            </Card>
-          </Col>
-          <Col offset={1}>
-            <Card>
-              <Statistic
-                title="Capital"
-                value={this.state.capital}
-                // precision={2}
-                valueStyle={{ color: "#3f8600" }}
-                // prefix={<ArrowUpOutlined />}
-                // suffix="%"
-              />
-            </Card>
-          </Col>
+          </Card>
         </Row>
-        {/* <Row> */}
         <br />
-        {this.state.paper ? (
-          <Row>
-            <Col span={18}>
-              <List
-                grid={{ gutter: 16, column: 4 }}
-                dataSource={data}
-                renderItem={(item) => (
-                  <List.Item>
-                    <Card hoverable={true} title={item.title}>
-                      <Tag color="#2db7f5">LTP :</Tag>
-                      {item.ltp}
-                      <br />
-                      <Tag color="#87d068">LotSize :</Tag> {item.size}
-                      <br />
-                      <Tag color="#108ee9">EntryValue :</Tag> {item.entry}
-                      <br />
-                      <Tag color="gold">Profit/loss :</Tag> {item.pnl}
-                      <br />
-                      <Tag color="purple">Token :</Tag> {item.tradetoken}
-                    </Card>
-                  </List.Item>
-                )}
-              />
-            </Col>
-            <Col offset={1}>
-              <Card title="History"></Card>
-            </Col>
-          </Row>
-        ) : (
-          <></>
+        {this.state.paper && (
+          <>
+            <Row justify="center">
+              <Col span={4}>
+                <Card>
+                  <Statistic
+                    title="Profit/Loss"
+                    value={0}
+                    // precision={2}
+                    valueStyle={{ color: "#3f8600" }}
+                    prefix={<ArrowUpOutlined />}
+                    suffix="%"
+                  />
+                </Card>
+              </Col>
+              <Col span={4} offset={2}>
+                <Card>
+                  <Statistic
+                    title="Capital"
+                    value={this.state.capital}
+                    // precision={2}
+                    valueStyle={{ color: "#3f8600" }}
+                    // prefix={<ArrowUpOutlined />}
+                    // suffix="%"
+                  />
+                </Card>
+              </Col>
+            </Row>
+            <Divider />
+            <Row justify="center">
+              <Col span={16}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
+                    <Grid container justify="center" spacing={2}>
+                      {child.map((value) => (
+                        <Grid key={value} item>
+                          <Card
+                            hoverable
+                            style={{ width: 200 }}
+                            title={data[value].title}
+                          >
+                            <List>
+                              <List.Item>
+                                <Tag color="#2db7f5" style={{ width: 80 }}>
+                                  LTP :
+                                </Tag>
+                                {data[value].ltp}
+                              </List.Item>
+                              <List.Item>
+                                <Tag color="#87d068" style={{ width: 80 }}>
+                                  LotSize :
+                                </Tag>
+                                {data[value].size}
+                              </List.Item>
+                              <List.Item>
+                                <Tag color="#108ee9" style={{ width: 80 }}>
+                                  EntryValue :
+                                </Tag>
+                                {data[value].entry}
+                              </List.Item>
+                              <List.Item>
+                                <Tag color="gold" style={{ width: 80 }}>
+                                  Profit/loss :
+                                </Tag>
+                                {data[value].pnl}
+                              </List.Item>
+                              <List.Item>
+                                <Tag color="purple" style={{ width: 80 }}>
+                                  Token :
+                                </Tag>
+                                {data[value].tradetoken}
+                              </List.Item>
+                            </List>
+                          </Card>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Col>
+              <Col span={8}>
+                <Card title="History" style={{ width: 200 }}></Card>
+              </Col>
+            </Row>
+          </>
         )}
 
         {/* </Row> */}

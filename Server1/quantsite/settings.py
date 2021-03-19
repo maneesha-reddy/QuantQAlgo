@@ -34,6 +34,8 @@ ALLOWED_HOSTS = ['djangoproject.ddns.net',
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
+    'rest_framework',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,8 +44,8 @@ INSTALLED_APPS = [
     'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
     'app',
-    'corsheaders',
-    'rest_framework',
+
+
 ]
 
 MIDDLEWARE = [
@@ -62,6 +64,15 @@ ROOT_URLCONF = 'quantsite.urls'
 
 FRONTEND_DIR = os.path.abspath(
     os.path.join(BASE_DIR, '..', 'Client'))
+
+REST_FRAMEWORK = {
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+    'DEFAULT_PARSER_CLASSES': [
+        'rest_framework.parsers.JSONParser',
+    ]
+}
 
 TEMPLATES = [
     {

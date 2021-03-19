@@ -49,7 +49,12 @@ class SideBar extends Component {
               <NavLink to="/paperTrade">Paper Trade</NavLink>
             </Menu.Item>
             <Menu.Item key="4">Optimise</Menu.Item>
-            <Menu.Item key="5">Live Trade</Menu.Item>
+            <Menu.Item key="5">
+              <NavLink to="/liveTrade">Live Trade</NavLink>
+            </Menu.Item>
+            <Menu.Item key="12">
+              <NavLink to="/createTrade">Create Strategy</NavLink>
+            </Menu.Item>
           </SubMenu>
           <SubMenu key="sub2" icon={<TeamOutlined />} title="Subscribe">
             <Menu.Item key="6">Team 1</Menu.Item>

@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom";
 import { Avatar } from "antd";
 import { UserOutlined, BellOutlined, BellFilled } from "@ant-design/icons";
 import "./TopBar.css";
-import { Select } from "antd";
+import { Select, Button } from "antd";
 
 // import { Select } from 'antd';
 // import InputLabel from '@material-ui/core/InputLabel';
@@ -22,7 +22,10 @@ function handleChange(value) {
   console.log(`selected ${value}`);
 }
 
-function TopBar() {
+function TopBar(props) {
+  // toggleTheme () {
+
+  // }
   return (
     <Header
       className="header"
@@ -61,14 +64,29 @@ function TopBar() {
         <Select
           defaultValue="My Account"
           className="dropdown"
-          style={{ position: "absolute", top: "2.5vh", right: "6vh" }}
+          style={{
+            position: "absolute",
+            top: "2.5vh",
+            right: "6vh",
+            backgroundColor: "transparent",
+            border: "transparent",
+            // color: "white",
+          }}
           onChange={handleChange}
         >
           <Option value="My Profile">My Profile</Option>
           <Option value="Settings">Settings</Option>
           <Option value="Logout">Logout</Option>
         </Select>
+        <Button
+          type={props.darkmode ? "dashed" : "primary"}
+          onClick={props.toogleTheme}
+          style={{ position: "absolute", top: "2.5vh" }}
+        >
+          Dark
+        </Button>
         {/* </div> */}
+        {/* <Button onClick = {toogleTheme}>Dark mode</Button> */}
       </div>
     </Header>
   );
